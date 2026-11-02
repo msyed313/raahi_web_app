@@ -1,0 +1,106 @@
+<div class="mx-auto max-w-2xl">
+      <div class="mb-3">
+        <h1 class="text-xl font-bold sm:text-2xl">Request a quote</h1>
+        <p class="mt-0.5 text-xs text-slate-500">
+          Send us your trip details and we'll come back with a price. No payment needed now.
+        </p>
+      </div>
+
+      @if (done(); as q) {
+        <div class="card text-center">
+          <span class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <app-icon name="check" size="h-5 w-5" />
+          </span>
+          <h2 class="mt-3 text-base font-semibold">Quote request received</h2>
+          <p class="mt-1 text-xs text-slate-500">Thanks {{ q.fullName }}. Our team will review your trip and send you a price.</p>
+          <p class="mt-3 inline-block rounded-lg bg-slate-100 px-3 py-1.5 font-mono text-sm font-semibold text-navy-900">{{ q.quoteRef }}</p>
+          <div class="mt-4 flex justify-center gap-2">
+            <a routerLink="/" class="btn btn-outline btn-sm">Back to home</a>
+            <a routerLink="/book" class="btn btn-primary btn-sm">Book a Ride</a>
+          </div>
+        </div>
+      } @else {
+        @if (error()) {
+          <div class="mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
+            <app-icon name="alert" class="mt-0.5" /> <span>{{ error() }}</span>
+          </div>
+        }
+
+        <form class="card space-y-3" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <h2 class="text-sm font-semibold">Your details</h2>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label class="label" for="q-name">Full name</label>
+              <input id="q-name" class="input" formControlName="fullName" autocomplete="name" [class.invalid]="bad('fullName')" />
+              @if (err('fullName'); as e) { <p class="field-error">{{ e }}</p> }
+            </div>
+            <div>
+              <label class="label" for="q-email">Email</label>
+              <input id="q-email" type="email" class="input" formControlName="email" autocomplete="email" [class.invalid]="bad('email')" />
+              @if (err('email'); as e) { <p class="field-error">{{ e }}</p> }
+            </div>
+            <div>
+              <label class="label" for="q-phone">Phone</label>
+              <input id="q-phone" type="tel" class="input" formControlName="phone" autocomplete="tel" placeholder="+92 300 1234567" [class.invalid]="bad('phone')" />
+              @if (err('phone'); as e) { <p class="field-error">{{ e }}</p> }
+            </div>
+          </div>
+
+          <h2 class="border-t border-slate-100 pt-3 text-sm font-semibold">Trip</h2>
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="label" for="q-pickup">Pickup address</label>
+              <input id="q-pickup" class="input" formControlName="pickupAddress" autocomplete="off" [class.invalid]="bad('pickupAddress')" />
+              @if (err('pickupAddress'); as e) { <p class="field-error">{{ e }}</p> }
+            </div>
+            <div>
+              <label class="label" for="q-drop">Drop-off address</label>
+              <input id="q-drop" class="input" formControlName="dropoffAddress" autocomplete="off" [class.invalid]="bad('dropoffAddress')" />
+              @if (err('dropoffAddress'); as e) { <p class="field-error">{{ e }}</p> }
+            </div>
+            <div>
+              <label class="label" for="q-when">Date &amp; time <span class="text-slate-400">(if known)</span></label>
+              <input id="q-when" type="datetime-local" class="input" formControlName="pickupDateTime" />
+            </div>
+            <div>
+              <label class="label" for="q-vehicle">Preferred vehicle <span class="text-slate-400">(optional)</span></label>
+              <select id="q-vehicle" class="input" formControlName="vehicleTypeId">
+                <option [ngValue]="null">No preference</option>
+                @for (v of vehicles(); track v.id) { <option [ngValue]="v.id">{{ v.name }}</option> }
+              </select>
+            </div>
+            <div>
+              <span class="label">Passengers</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('passengers', -1)" aria-label="Fewer passengers"><app-icon name="minus" /></button>
+                <input type="number" class="input w-14 text-center" formControlName="passengers" min="1" max="50" aria-label="Passengers" />
+                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('passengers', 1)" aria-label="More passengers"><app-icon name="plus" /></button>
+              </div>
+            </div>
+            <div>
+              <span class="label">Luggage</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('luggage', -1)" aria-label="Fewer bags"><app-icon name="minus" /></button>
+                <input type="number" class="input w-14 text-center" formControlName="luggage" min="0" max="50" aria-label="Luggage" />
+                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('luggage', 1)" aria-label="More bags"><app-icon name="plus" /></button>
+              </div>
+            </div>
+            <div>
+              <label class="label" for="q-flight">Flight number <span class="text-slate-400">(optional)</span></label>
+              <input id="q-flight" class="input uppercase" formControlName="flightNumber" placeholder="PK301" autocomplete="off" [class.invalid]="bad('flightNumber')" />
+              @if (err('flightNumber'); as e) { <p class="field-error">{{ e }}</p> }
+            </div>
+          </div>
+          <div>
+            <label class="label" for="q-notes">Notes <span class="text-slate-400">(optional)</span></label>
+            <textarea id="q-notes" rows="2" class="input" formControlName="notes" placeholder="Anything we should know: extra stops, return trip, child seat…"></textarea>
+          </div>
+
+          <div class="flex justify-end pt-1">
+            <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+              @if (submitting()) { Sending… } @else { Request Quote <app-icon name="arrow-right" /> }
+            </button>
+          </div>
+        </form>
+      }
+    </div>

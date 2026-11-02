@@ -1,0 +1,43 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import {
+  BookingConfirmation,
+  CalculatePriceRequest,
+  CreateBookingRequest,
+  CreateQuoteRequest,
+  PriceResult,
+  QuoteCreated,
+  RouteItem,
+  VehicleType,
+} from './models';
+
+@Injectable({ providedIn: 'root' })
+export class ApiService {
+  private readonly http = inject(HttpClient);
+  private readonly base = `${environment.apiUrl}/api`;
+
+  vehicleTypes(passengers?: number | null, luggage?: number | null): Observable<VehicleType[]> {
+    let params = new HttpParams();
+    if (passengers) params = params.set('passengers', passengers);
+    if (luggage !== null && luggage !== undefined) params = params.set('luggage', luggage);
+    return this.http.get<VehicleType[]>(`${this.base}/catalog/vehicle-types`, { params });
+  }
+
+  routes(): Observable<RouteItem[]> {
+    return this.http.get<RouteItem[]>(`${this.base}/catalog/routes`);
+  }
+
+  calculatePrice(request: CalculatePriceRequest): Observable<PriceResult> {
+    return this.http.post<PriceResult>(`${this.base}/pricing/calculate`, request);
+  }
+
+  createBooking(request: CreateBookingRequest): Observable<BookingConfirmation> {
+    return this.http.post<BookingConfirmation>(`${this.base}/bookings`, request);
+  }
+
+  createQuote(request: CreateQuoteRequest): Observable<QuoteCreated> {
+    return this.http.post<QuoteCreated>(`${this.base}/quotes`, request);
+  }
+}
