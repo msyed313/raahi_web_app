@@ -1,4 +1,4 @@
 export const environment = {
-  apiUrl: 'https://raahi.runasp.net',
+  apiUrl: 'http://raahi.runasp.net',
   currency: 'PKR',
 };
