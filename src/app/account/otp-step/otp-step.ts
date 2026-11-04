@@ -45,7 +45,11 @@ export class OtpStep implements OnInit {
     const digits = this.code.value.replace(/\D/g, '').slice(0, 6);
     if (digits !== this.code.value) this.code.setValue(digits);
   }
-
+onSubmit(event: Event): void {
+  // This form has no [formGroup], so Angular does not stop the browser's own submit (a full page reload)
+  event.preventDefault();
+  this.submit();
+}
   submit(): void {
     if (this.busy()) return;
     if (this.code.invalid) {
@@ -55,6 +59,7 @@ export class OtpStep implements OnInit {
     this.error.set(null);
     this.info.set(null);
     this.busy.set(true);
+    
     this.auth.verifyOtp(this.email(), this.purpose(), this.code.value).subscribe({
       next: (r) => {
         this.busy.set(false);
