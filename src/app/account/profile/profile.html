@@ -1,0 +1,105 @@
+ <div class="mx-auto w-full max-w-xl px-4 py-6">
+      <div class="mb-3 flex items-center justify-between">
+        <div>
+          <h1 class="text-lg font-bold">My account</h1>
+          @if (profile(); as p) {
+            <p class="text-xs text-slate-500">Member since {{ p.createdAtUtc | date: 'MMM y' }}</p>
+          }
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" (click)="auth.logout()">
+          <app-icon name="log-out" size="h-3.5 w-3.5" /> Log out
+        </button>
+      </div>
+<app-account-tabs />
+      @if (loadError()) {
+        <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">{{ loadError() }}</div>
+      }
+
+      @if (profile(); as p) {
+        <!-- Profile -->
+        <form class="card" [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <h2 class="text-sm font-semibold">Profile</h2>
+
+          @if (saved()) {
+            <p class="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">Profile saved.</p>
+          }
+          @if (saveError()) {
+            <p class="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">{{ saveError() }}</p>
+          }
+
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label class="label" for="fullName">Full name</label>
+              <input id="fullName" class="input" formControlName="fullName" autocomplete="name"
+                     [class.invalid]="bad('fullName')" />
+              @if (bad('fullName')) { <p class="field-error">Enter your name (at least 2 characters)</p> }
+            </div>
+            <div>
+              <label class="label" for="email">Email</label>
+              <input id="email" class="input bg-slate-50 text-slate-500" [value]="p.email" readonly />
+            </div>
+            <div>
+              <label class="label" for="phone">Phone</label>
+              <input id="phone" type="tel" class="input" formControlName="phone" autocomplete="tel"
+                     placeholder="+92 300 1234567" [class.invalid]="bad('phone')" />
+              @if (bad('phone')) { <p class="field-error">Enter a valid phone number</p> }
+            </div>
+            <div class="sm:col-span-2">
+              <label class="label" for="pickup">Default pickup address</label>
+              <input id="pickup" class="input" formControlName="defaultPickupAddress"
+                     placeholder="Home or office address (optional)" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-3" [disabled]="saving()">
+            @if (saving()) { Saving… } @else { Save changes }
+          </button>
+        </form>
+
+        <!-- Password -->
+        <form class="card mt-3" [formGroup]="pwForm" (ngSubmit)="changePassword()" novalidate>
+          <h2 class="text-sm font-semibold">{{ p.hasPassword ? 'Change password' : 'Set a password' }}</h2>
+          @if (!p.hasPassword) {
+            <p class="mt-0.5 text-xs text-slate-500">You signed in with Google. Add a password to also log in with your email.</p>
+          }
+
+          @if (pwSaved()) {
+            <p class="mt-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-700">Password updated.</p>
+          }
+          @if (pwError()) {
+            <p class="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">{{ pwError() }}</p>
+          }
+
+          <div class="mt-3 grid gap-3 sm:grid-cols-2">
+            @if (p.hasPassword) {
+              <div class="sm:col-span-2">
+                <label class="label" for="current">Current password</label>
+                <input id="current" type="password" class="input" formControlName="currentPassword"
+                       autocomplete="current-password" [class.invalid]="pwBad('currentPassword')" />
+                @if (pwBad('currentPassword')) { <p class="field-error">Enter your current password</p> }
+              </div>
+            }
+            <div>
+              <label class="label" for="newPassword">New password</label>
+              <input id="newPassword" type="password" class="input" formControlName="newPassword"
+                     autocomplete="new-password" [class.invalid]="pwBad('newPassword')" />
+              <p class="mt-1 text-[11px] text-slate-500" [class.text-red-600]="pwBad('newPassword')">
+                At least 8 characters, with a letter and a number.
+              </p>
+            </div>
+            <div>
+              <label class="label" for="confirm">Confirm new password</label>
+              <input id="confirm" type="password" class="input" formControlName="confirm"
+                     autocomplete="new-password" [class.invalid]="mismatch()" />
+              @if (mismatch()) { <p class="field-error">Passwords do not match</p> }
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-outline mt-3" [disabled]="pwSaving()">
+            @if (pwSaving()) { Saving… } @else { {{ p.hasPassword ? 'Update password' : 'Set password' }} }
+          </button>
+        </form>
+      } @else if (!loadError()) {
+        <p class="py-10 text-center text-xs text-slate-500">Loading…</p>
+      }
+    </div>

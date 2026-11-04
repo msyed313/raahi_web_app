@@ -42,7 +42,7 @@
               Custom trip
             </button>
           </div>
-
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           @if (mode() === 'route') {
             <div>
               <label class="label" for="routeId">Route</label>
@@ -60,7 +60,7 @@
             </div>
           }
 
-          <div class="grid gap-3 sm:grid-cols-2">
+          
             <div>
               <label class="label" for="pickupAddress">Pickup address</label>
               <input id="pickupAddress" class="input" formControlName="pickupAddress" autocomplete="off"
@@ -75,7 +75,7 @@
             </div>
           </div>
 
-          <div class="grid gap-3 sm:grid-cols-2">
+          <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label class="label" for="pickupDateTime">Pickup date &amp; time</label>
               <input id="pickupDateTime" type="datetime-local" class="input" formControlName="pickupDateTime"
@@ -98,18 +98,15 @@
                 @if (err(trip, 'flightNumber'); as e) { <p class="field-error">{{ e }}</p> }
               </div>
             }
-          </div>
-
-          <div class="grid gap-3 sm:grid-cols-2">
             <div>
               <span class="label">Passengers</span>
               <div class="flex items-center gap-1.5">
-                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('passengers', -1)" aria-label="Fewer passengers">
+                <button type="button" class="btn btn-outline w-7 px-0" (click)="bump('passengers', -1)" aria-label="Fewer passengers">
                   <app-icon name="minus" />
                 </button>
-                <input type="number" class="input w-14 text-center" formControlName="passengers" min="1" max="50"
+                <input type="number" class="input w-12 text-center" formControlName="passengers" min="1" max="50"
                        aria-label="Passengers" [class.invalid]="bad(trip, 'passengers')" />
-                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('passengers', 1)" aria-label="More passengers">
+                <button type="button" class="btn btn-outline w-7 px-0" (click)="bump('passengers', 1)" aria-label="More passengers">
                   <app-icon name="plus" />
                 </button>
               </div>
@@ -118,12 +115,12 @@
             <div>
               <span class="label">Luggage</span>
               <div class="flex items-center gap-1.5">
-                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('luggage', -1)" aria-label="Fewer bags">
+                <button type="button" class="btn btn-outline w-7 px-0" (click)="bump('luggage', -1)" aria-label="Fewer bags">
                   <app-icon name="minus" />
                 </button>
-                <input type="number" class="input w-14 text-center" formControlName="luggage" min="0" max="50"
+                <input type="number" class="input w-12 text-center" formControlName="luggage" min="0" max="50"
                        aria-label="Luggage" [class.invalid]="bad(trip, 'luggage')" />
-                <button type="button" class="btn btn-outline w-9 px-0" (click)="bump('luggage', 1)" aria-label="More bags">
+                <button type="button" class="btn btn-outline w-7 px-0" (click)="bump('luggage', 1)" aria-label="More bags">
                   <app-icon name="plus" />
                 </button>
               </div>
@@ -223,7 +220,8 @@
             <div>
               <label class="label" for="email">Email</label>
               <input id="email" type="email" class="input" formControlName="email" autocomplete="email"
-                     placeholder="you@example.com" [class.invalid]="bad(contact, 'email')" />
+                     placeholder="you@example.com" [readOnly]="!!loggedIn()"
+       [class.bg-slate-50]="!!loggedIn()" [class.invalid]="bad(contact, 'email')" />
               @if (err(contact, 'email'); as e) { <p class="field-error">{{ e }}</p> }
             </div>
             <div>

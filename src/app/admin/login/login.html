@@ -1,0 +1,44 @@
+<div class="flex min-h-screen items-center justify-center bg-navy-900 px-4 py-8">
+      <div class="w-full max-w-sm">
+        <img src="raahi-logo-dark.svg" alt="Raahi" class="mx-auto mb-5 h-10 w-auto" />
+
+        <form class="rounded-2xl bg-white p-5 shadow-xl" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <h1 class="text-base font-bold">Admin sign in</h1>
+          <p class="mt-0.5 text-xs text-slate-500">Sign in to manage bookings and quotes.</p>
+
+          @if (expired) {
+            <p class="mt-3 rounded-lg bg-saffron-50 px-3 py-2 text-xs text-saffron-700">
+              Your session expired. Please sign in again.
+            </p>
+          }
+          @if (error()) {
+            <div class="mt-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
+              <app-icon name="alert" class="mt-0.5" /> <span>{{ error() }}</span>
+            </div>
+          }
+
+          <div class="mt-3 space-y-3">
+            <div>
+              <label class="label" for="email">Email</label>
+              <input id="email" type="email" class="input" formControlName="email" autocomplete="username"
+                     [class.invalid]="invalid('email')" />
+              @if (invalid('email')) { <p class="field-error">Enter your email address</p> }
+            </div>
+            <div>
+              <label class="label" for="password">Password</label>
+              <input id="password" type="password" class="input" formControlName="password"
+                     autocomplete="current-password" [class.invalid]="invalid('password')" />
+              @if (invalid('password')) { <p class="field-error">Enter your password</p> }
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-accent mt-4 w-full" [disabled]="busy()">
+            @if (busy()) { Signing in… } @else { <app-icon name="lock" /> Sign in }
+          </button>
+        </form>
+
+        <p class="mt-4 text-center text-xs text-slate-400">
+          <a routerLink="/" class="hover:text-white">&larr; Back to website</a>
+        </p>
+      </div>
+    </div>

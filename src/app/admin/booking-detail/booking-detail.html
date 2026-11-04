@@ -1,0 +1,174 @@
+<a routerLink="/admin/bookings" class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-900">
+      <app-icon name="arrow-left" size="h-3.5 w-3.5" /> Back to bookings
+    </a>
+
+    @if (error()) {
+      <div class="mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
+        <app-icon name="alert" class="mt-0.5" /> <span>{{ error() }}</span>
+      </div>
+    }
+    @if (flash()) {
+      <div class="mb-3 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">
+        <app-icon name="check" class="mt-0.5" /> <span>{{ flash() }}</span>
+      </div>
+    }
+
+    @if (data(); as d) {
+      @let b = d.booking;
+      <div class="mb-3 flex flex-wrap items-center gap-2">
+        <h1 class="font-mono text-lg font-bold">{{ b.bookingRef }}</h1>
+        <span class="badge" [class]="statusClass(b.status)">{{ label(b.status) }}</span>
+        <span class="badge" [class]="payClass(b.paymentStatus)">{{ payLabel(b.paymentStatus) }}</span>
+        <span class="text-xs text-slate-500">Created {{ utcDate(b.createdAtUtc) | date: 'd MMM y, h:mm a' }}</span>
+      </div>
+
+      <div class="grid gap-3 lg:grid-cols-[1fr_320px] lg:items-start">
+        <!-- Left: details -->
+        <div class="space-y-3">
+          <section class="card">
+            <h2 class="text-sm font-semibold">Trip</h2>
+            <dl class="mt-2.5 grid gap-x-6 gap-y-2.5 text-xs sm:grid-cols-2">
+              <div class="sm:col-span-2">
+                <dt class="text-slate-500">Pickup</dt><dd class="font-medium">{{ b.pickupAddress }}</dd>
+              </div>
+              <div class="sm:col-span-2">
+                <dt class="text-slate-500">Drop-off</dt><dd class="font-medium">{{ b.dropoffAddress }}</dd>
+              </div>
+              <div><dt class="text-slate-500">Pickup time</dt><dd class="font-medium">{{ b.pickupDateTime | date: 'EEE, d MMM y · h:mm a' }}</dd></div>
+              <div><dt class="text-slate-500">Vehicle</dt><dd class="font-medium">{{ b.vehicleType }}</dd></div>
+              <div><dt class="text-slate-500">Passengers / luggage</dt><dd class="font-medium">{{ b.passengers }} / {{ b.luggage }}</dd></div>
+              <div>
+                <dt class="text-slate-500">Flight</dt>
+                <dd class="font-medium">
+                  @if (b.flightNumber) { <span class="uppercase">{{ b.flightNumber }}</span>
+                    <span class="ml-1 text-[11px] font-normal" [class]="b.flightVerified ? 'text-emerald-600' : 'text-slate-400'">{{ b.flightVerified ? 'verified' : 'not verified' }}</span>
+                  } @else { — }
+                </dd>
+              </div>
+              @if (b.routeName) { <div><dt class="text-slate-500">Fixed route</dt><dd class="font-medium">{{ b.routeName }}</dd></div> }
+              @if (b.distanceKm) { <div><dt class="text-slate-500">Distance</dt><dd class="font-medium">{{ b.distanceKm | number: '1.0-1' }} km</dd></div> }
+              @if (b.quoteRef) { <div><dt class="text-slate-500">From quote</dt><dd class="font-medium">{{ b.quoteRef }}</dd></div> }
+              @if (b.notes) { <div class="sm:col-span-2"><dt class="text-slate-500">Customer notes</dt><dd class="font-medium">{{ b.notes }}</dd></div> }
+              @if (b.cancelReason) { <div class="sm:col-span-2"><dt class="text-slate-500">Cancel reason</dt><dd class="font-medium text-red-700">{{ b.cancelReason }}</dd></div> }
+            </dl>
+          </section>
+
+          <section class="card">
+            <h2 class="text-sm font-semibold">Customer</h2>
+            <dl class="mt-2.5 grid gap-x-6 gap-y-2.5 text-xs sm:grid-cols-3">
+              <div><dt class="text-slate-500">Name</dt><dd class="font-medium">{{ b.customerName }}</dd></div>
+              <div><dt class="text-slate-500">Phone</dt><dd class="font-medium"><a [href]="'tel:' + b.customerPhone" class="text-navy-600 hover:underline">{{ b.customerPhone }}</a></dd></div>
+              <div><dt class="text-slate-500">Email</dt><dd class="break-all font-medium"><a [href]="'mailto:' + b.customerEmail" class="text-navy-600 hover:underline">{{ b.customerEmail }}</a></dd></div>
+            </dl>
+          </section>
+
+          <section class="card !p-0">
+            <h2 class="border-b border-slate-200 px-3 py-2.5 text-sm font-semibold">Payment</h2>
+            <div class="space-y-1 px-3 py-2.5 text-xs text-slate-600">
+              <div class="flex justify-between"><span>Method</span><span class="font-medium text-slate-800">{{ b.paymentMethod === 'Card' ? 'Online card' : 'Pay the driver' }}</span></div>
+              <div class="flex justify-between"><span>Fare</span><span>{{ b.currency }} {{ b.baseAmount | number: '1.0-0' }}</span></div>
+              @if (b.surchargeAmount > 0) { <div class="flex justify-between"><span>Surcharges</span><span>{{ b.currency }} {{ b.surchargeAmount | number: '1.0-0' }}</span></div> }
+              <div class="flex justify-between border-t border-slate-200 pt-1.5 text-sm font-bold text-navy-900"><span>Total</span><span>{{ b.currency }} {{ b.totalAmount | number: '1.0-0' }}</span></div>
+            </div>
+            @if (d.payments.length) {
+              <div class="overflow-x-auto border-t border-slate-200">
+                <table class="table-compact">
+                  <thead><tr><th>Gateway</th><th>Reference</th><th class="text-right">Amount</th><th>Status</th><th>Date</th></tr></thead>
+                  <tbody>
+                    @for (p of d.payments; track p.id) {
+                      <tr>
+                        <td>{{ p.gateway }}</td>
+                        <td class="font-mono">{{ p.gatewayTransactionId || '—' }}</td>
+                        <td class="text-right">{{ p.currency }} {{ p.amount | number: '1.0-0' }}</td>
+                        <td><span class="badge" [class]="payClass(p.status === 'Succeeded' ? 'Paid' : p.status)">{{ p.status }}</span>
+                          @if (p.failureReason) { <span class="ml-1 text-[11px] text-red-600">{{ p.failureReason }}</span> }</td>
+                        <td class="whitespace-nowrap">{{ utcDate(p.createdAtUtc) | date: 'd MMM, h:mm a' }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </section>
+        </div>
+
+        <!-- Right: actions + history -->
+        <div class="space-y-3 lg:sticky lg:top-4">
+          <section class="card">
+            <h2 class="text-sm font-semibold">Driver</h2>
+            @if (b.driverName) {
+              <p class="mt-2 text-xs"><span class="font-semibold">{{ b.driverName }}</span>
+                <span class="text-slate-500"> · {{ b.driverPhone }}</span>
+                @if (b.driverPlate) { <span class="text-slate-500"> · {{ b.driverPlate }}</span> }</p>
+            } @else {
+              <p class="mt-2 text-xs text-slate-500">No driver assigned yet.</p>
+            }
+
+            @if (canAssign()) {
+              <div class="mt-2.5 flex gap-1.5">
+                <select class="input" aria-label="Driver" [value]="driverId() ?? ''" (change)="driverId.set(+$any($event.target).value || null)">
+                  <option value="">Select driver…</option>
+                  @for (dr of drivers(); track dr.driverId) {
+                    <option [value]="dr.driverId">{{ dr.fullName }}{{ dr.vehicleType ? ' (' + dr.vehicleType + ')' : '' }}</option>
+                  }
+                </select>
+                <button type="button" class="btn btn-primary shrink-0" [disabled]="!driverId() || busy()" (click)="assign()">
+                  {{ b.status === 'Assigned' ? 'Change' : 'Assign' }}
+                </button>
+              </div>
+            }
+          </section>
+
+          @if (actions().length) {
+            <section class="card">
+              <h2 class="text-sm font-semibold">Actions</h2>
+
+              @if (pending(); as p) {
+                <div class="mt-2.5 rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+                  <p class="text-xs font-semibold">{{ confirmText(p) }}</p>
+                  @if (p === 'Cancelled' && b.paymentStatus === 'Paid') {
+                    <p class="mt-1 text-[11px] text-red-600">This booking was paid online. Refund it through the payment gateway as well.</p>
+                  }
+                  <textarea rows="2" class="input mt-2" placeholder="{{ p === 'Cancelled' ? 'Reason (required)' : 'Note (optional)' }}"
+                            [value]="note()" (input)="note.set($any($event.target).value)"></textarea>
+                  <div class="mt-2 flex gap-1.5">
+                    <button type="button" class="btn btn-sm" [class]="p === 'Cancelled' ? 'btn-primary !bg-red-600 hover:!bg-red-700' : 'btn-primary'"
+                            [disabled]="busy() || (p === 'Cancelled' && !note().trim())" (click)="confirmPending()">
+                      {{ busy() ? 'Saving…' : 'Confirm' }}
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" [disabled]="busy()" (click)="cancelPending()">Back</button>
+                  </div>
+                </div>
+              } @else {
+                <div class="mt-2.5 flex flex-wrap gap-1.5">
+                  @for (a of actions(); track a.status + a.label) {
+                    <button type="button" class="btn btn-sm"
+                            [class]="a.tone === 'primary' ? 'btn-primary' : a.tone === 'danger' ? 'btn-outline !border-red-300 !text-red-700 hover:!bg-red-50' : 'btn-outline'"
+                            [disabled]="busy()" (click)="startAction(a.status)">{{ a.label }}</button>
+                  }
+                </div>
+                @if (b.status === 'Pending') {
+                  <p class="mt-2 text-[11px] text-slate-500">A card booking is confirmed automatically once the payment succeeds.</p>
+                }
+              }
+            </section>
+          }
+
+          <section class="card">
+            <h2 class="text-sm font-semibold">History</h2>
+            <ol class="mt-2.5 space-y-2.5 border-l border-slate-200 pl-3">
+              @for (h of d.history; track h.id) {
+                <li class="relative text-xs">
+                  <span class="absolute -left-[17px] top-1 h-2 w-2 rounded-full bg-navy-500"></span>
+                  <p class="font-semibold">{{ h.fromStatus ? label(h.fromStatus) + ' → ' : '' }}{{ label(h.toStatus) }}</p>
+                  <p class="text-slate-500">{{ utcDate(h.changedAtUtc) | date: 'd MMM y, h:mm a' }} · {{ h.changedBy }}</p>
+                  @if (h.note) { <p class="mt-0.5 text-slate-600">{{ h.note }}</p> }
+                </li>
+              }
+            </ol>
+          </section>
+        </div>
+      </div>
+    } @else if (loading()) {
+      <p class="py-10 text-center text-xs text-slate-500">Loading…</p>
+    }

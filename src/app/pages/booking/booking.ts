@@ -20,6 +20,9 @@ import {
   VehicleType,
 } from '../../core/models';
 import { Icon, IconName } from '../../shared/icon';
+   import { CustomerAuthService } from '../../core/customer-auth.service';
+
+
 
 interface VehicleOption {
   vehicle: VehicleType;
@@ -51,7 +54,8 @@ export class Booking implements OnInit {
   private readonly api = inject(ApiService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-
+   private readonly customerAuth = inject(CustomerAuthService);
+   readonly loggedIn = this.customerAuth.session;
   readonly steps = [
     { n: 1, label: 'Trip' },
     { n: 2, label: 'Vehicle' },
@@ -96,6 +100,20 @@ export class Booking implements OnInit {
   }
 
   ngOnInit(): void {
+        if (this.customerAuth.isValid()) {
+     this.customerAuth.profile().subscribe({
+       next: (p) =>
+         this.contact.patchValue({
+           fullName: p.fullName,
+           email: p.email,
+           phone: p.phone || this.contact.controls.phone.value,
+         }),
+       error: () => {
+         /* not critical: the customer can type their details */
+       },
+     });
+   }
+
     this.api.routes().subscribe({
       next: (routes) => {
         this.routes.set(routes);

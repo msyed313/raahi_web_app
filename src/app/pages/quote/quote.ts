@@ -6,7 +6,7 @@ import { ApiService } from '../../core/api.service';
 import { toApiDateTime } from '../../core/format';
 import { CreateQuoteRequest, QuoteCreated, VehicleType } from '../../core/models';
 import { Icon } from '../../shared/icon';
-
+import { CustomerAuthService } from '../../core/customer-auth.service';
 function flightNumber(control: AbstractControl): ValidationErrors | null {
   const value = ((control.value as string) ?? '').replace(/\s+/g, '');
   return value === '' || /^[A-Za-z0-9]{3,8}$/.test(value) ? null : { flight: true };
@@ -24,7 +24,9 @@ export class Quote implements OnInit {
    
   private readonly fb = inject(FormBuilder);
   private readonly api = inject(ApiService);
+private readonly customerAuth = inject(CustomerAuthService);
 
+readonly loggedIn = this.customerAuth.session;
   readonly vehicles = signal<VehicleType[]>([]);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
@@ -45,8 +47,22 @@ export class Quote implements OnInit {
   });
 
   ngOnInit(): void {
-    this.api.vehicleTypes().subscribe({ next: (v) => this.vehicles.set(v), error: () => undefined });
+  if (this.customerAuth.isValid()) {
+    this.customerAuth.profile().subscribe({
+      next: (p) =>
+        this.form.patchValue({
+          fullName: p.fullName,
+          email: p.email,
+          phone: p.phone || this.form.controls.phone.value,
+        }),
+      error: () => {
+        /* not critical: the customer can type their details */
+      },
+    });
   }
+
+  this.api.vehicleTypes().subscribe({ next: (v) => this.vehicles.set(v), error: () => undefined });
+}
 
   err(name: string): string | null {
     const c = this.form.get(name);

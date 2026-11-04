@@ -36,7 +36,8 @@
             </div>
             <div>
               <label class="label" for="q-email">Email</label>
-              <input id="q-email" type="email" class="input" formControlName="email" autocomplete="email" [class.invalid]="bad('email')" />
+              <input id="q-email" type="email" class="input" formControlName="email" autocomplete="email"
+       [readOnly]="!!loggedIn()" [class.bg-slate-50]="!!loggedIn()" [class.invalid]="bad('email')" />
               @if (err('email'); as e) { <p class="field-error">{{ e }}</p> }
             </div>
             <div>

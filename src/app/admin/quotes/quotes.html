@@ -1,0 +1,133 @@
+<div class="mb-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-bold">Quote requests</h1>
+        <p class="text-xs text-slate-500">Set a price for each request. Customers book from an accepted quote.</p>
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" (click)="load()" [disabled]="loading()">
+        <app-icon name="refresh" size="h-3.5 w-3.5" /> Refresh
+      </button>
+    </div>
+
+    <div class="mb-2 flex gap-1 overflow-x-auto pb-1">
+      @for (s of statusTabs; track s.value) {
+        <button type="button" (click)="setStatus(s.value)"
+                class="h-8 shrink-0 rounded-full px-3 text-xs font-semibold transition"
+                [class]="filters.controls.status.value === s.value ? 'bg-navy-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'">
+          {{ s.label }}
+        </button>
+      }
+    </div>
+
+    <form [formGroup]="filters" class="card mb-3 !p-3">
+      <div class="relative">
+        <app-icon name="search" class="pointer-events-none absolute left-2.5 top-2.5 text-slate-400" />
+        <input class="input pl-8" formControlName="search" placeholder="Search ref, name, email, phone or address" aria-label="Search" />
+      </div>
+    </form>
+
+    @if (error()) {
+      <div class="mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
+        <app-icon name="alert" class="mt-0.5" /> <span>{{ error() }}</span>
+      </div>
+    }
+    @if (flash()) {
+      <div class="mb-3 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">
+        <app-icon name="check" class="mt-0.5" /> <span>{{ flash() }}</span>
+      </div>
+    }
+
+    <div class="card !p-0">
+      <div class="overflow-x-auto">
+        <table class="table-compact">
+          <thead>
+            <tr><th class="w-6"></th><th>Quote</th><th>Received</th><th>Customer</th><th>Trip</th><th>Pax</th><th class="text-right">Price</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            @for (q of items(); track q.quoteId) {
+              <tr class="cursor-pointer" (click)="toggle(q)">
+                <td><app-icon [name]="openId() === q.quoteId ? 'chevron-down' : 'chevron-right'" class="text-slate-400" /></td>
+                <td class="whitespace-nowrap font-semibold text-navy-600">{{ q.quoteRef }}</td>
+                <td class="whitespace-nowrap">{{ utcDate(q.createdAtUtc) | date: 'd MMM, h:mm a' }}</td>
+                <td>
+                  <span class="block font-medium">{{ q.customerName }}</span>
+                  <span class="block text-[11px] text-slate-500">{{ q.customerPhone }}</span>
+                </td>
+                <td class="max-w-[240px]">
+                  <span class="block truncate" [title]="q.pickupAddress">{{ q.pickupAddress }}</span>
+                  <span class="block truncate text-[11px] text-slate-500" [title]="q.dropoffAddress">&rarr; {{ q.dropoffAddress }}</span>
+                </td>
+                <td>{{ q.passengers }}</td>
+                <td class="whitespace-nowrap text-right font-semibold">
+                  @if (q.quotedAmount !== null) { {{ q.currency }} {{ q.quotedAmount | number: '1.0-0' }} } @else { <span class="font-normal text-slate-400">—</span> }
+                </td>
+                <td><span class="badge" [class]="statusClass(q.status)">{{ q.status }}</span></td>
+              </tr>
+
+              @if (openId() === q.quoteId) {
+                <tr>
+                  <td colspan="8" class="!bg-slate-50 !p-3">
+                    <div class="grid gap-4 lg:grid-cols-2">
+                      <dl class="grid gap-x-6 gap-y-2 text-xs sm:grid-cols-2">
+                        <div class="sm:col-span-2"><dt class="text-slate-500">Pickup</dt><dd class="font-medium">{{ q.pickupAddress }}</dd></div>
+                        <div class="sm:col-span-2"><dt class="text-slate-500">Drop-off</dt><dd class="font-medium">{{ q.dropoffAddress }}</dd></div>
+                        <div><dt class="text-slate-500">When</dt><dd class="font-medium">{{ q.pickupDateTime ? (q.pickupDateTime | date: 'EEE, d MMM y · h:mm a') : 'Not decided yet' }}</dd></div>
+                        <div><dt class="text-slate-500">Passengers / luggage</dt><dd class="font-medium">{{ q.passengers }} / {{ q.luggage }}</dd></div>
+                        <div><dt class="text-slate-500">Preferred vehicle</dt><dd class="font-medium">{{ q.vehicleType || 'No preference' }}</dd></div>
+                        <div><dt class="text-slate-500">Flight</dt><dd class="font-medium uppercase">{{ q.flightNumber || '—' }}</dd></div>
+                        <div><dt class="text-slate-500">Email</dt><dd class="break-all font-medium"><a [href]="'mailto:' + q.customerEmail" class="text-navy-600 hover:underline">{{ q.customerEmail }}</a></dd></div>
+                        <div><dt class="text-slate-500">Phone</dt><dd class="font-medium"><a [href]="'tel:' + q.customerPhone" class="text-navy-600 hover:underline">{{ q.customerPhone }}</a></dd></div>
+                        @if (q.notes) { <div class="sm:col-span-2"><dt class="text-slate-500">Customer notes</dt><dd class="font-medium">{{ q.notes }}</dd></div> }
+                        @if (q.adminNote) { <div class="sm:col-span-2"><dt class="text-slate-500">Your note</dt><dd class="font-medium">{{ q.adminNote }}</dd></div> }
+                        @if (q.expiresAtUtc && q.status === 'Quoted') {
+                          <div class="sm:col-span-2"><dt class="text-slate-500">Price valid until</dt><dd class="font-medium">{{ utcDate(q.expiresAtUtc) | date: 'd MMM y, h:mm a' }}</dd></div>
+                        }
+                      </dl>
+
+                      @if (q.status === 'New' || q.status === 'Quoted') {
+                        <form [formGroup]="priceForm" (ngSubmit)="send(q)" novalidate class="space-y-2.5 rounded-lg border border-slate-200 bg-white p-3">
+                          <h3 class="text-xs font-semibold">{{ q.status === 'Quoted' ? 'Update the price' : 'Send a price' }}</h3>
+                          <div class="grid gap-2.5 sm:grid-cols-2">
+                            <div>
+                              <label class="label" [for]="'amt' + q.quoteId">Price ({{ q.currency }})</label>
+                              <input [id]="'amt' + q.quoteId" type="number" min="1" class="input" formControlName="amount"
+                                     [class.invalid]="priceForm.controls.amount.invalid && priceForm.controls.amount.touched" />
+                              @if (priceForm.controls.amount.invalid && priceForm.controls.amount.touched) { <p class="field-error">Enter a price above 0</p> }
+                            </div>
+                            <div>
+                              <label class="label" [for]="'val' + q.quoteId">Valid for (hours)</label>
+                              <input [id]="'val' + q.quoteId" type="number" min="1" max="720" class="input" formControlName="validityHours" />
+                            </div>
+                          </div>
+                          <div>
+                            <label class="label" [for]="'note' + q.quoteId">Note to customer <span class="text-slate-400">(optional)</span></label>
+                            <textarea [id]="'note' + q.quoteId" rows="2" class="input" formControlName="note"></textarea>
+                          </div>
+                          <p class="text-[11px] text-slate-500">The customer is not emailed yet (the email step comes later). Contact them using the details shown.</p>
+                          <div class="flex gap-1.5">
+                            <button type="submit" class="btn btn-primary btn-sm" [disabled]="busy()">{{ busy() ? 'Saving…' : 'Save price' }}</button>
+                            <button type="button" class="btn btn-outline btn-sm !border-red-300 !text-red-700 hover:!bg-red-50" [disabled]="busy()" (click)="decline(q)">Decline request</button>
+                          </div>
+                        </form>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            } @empty {
+              <tr>
+                <td colspan="8" class="py-8 text-center text-slate-500">{{ loading() ? 'Loading…' : 'No quote requests match these filters.' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-slate-200 px-3 py-2 text-xs text-slate-500">
+        <span>{{ rangeText() }}</span>
+        <div class="flex items-center gap-1.5">
+          <button type="button" class="btn btn-outline btn-sm" (click)="go(page() - 1)" [disabled]="page() <= 1 || loading()">Previous</button>
+          <span>Page {{ page() }} of {{ totalPages() }}</span>
+          <button type="button" class="btn btn-outline btn-sm" (click)="go(page() + 1)" [disabled]="page() >= totalPages() || loading()">Next</button>
+        </div>
+      </div>
+    </div>

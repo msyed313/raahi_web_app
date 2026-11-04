@@ -3,7 +3,8 @@ import { Component, input } from '@angular/core';
 export type IconName =
   | 'users' | 'user' | 'briefcase' | 'arrow-right' | 'arrow-left' | 'check' | 'car' | 'map-pin'
   | 'calendar' | 'plane' | 'credit-card' | 'banknote' | 'clock' | 'shield-check' | 'mail'
-  | 'alert' | 'minus' | 'plus' | 'phone';
+  | 'alert' | 'minus' | 'plus' | 'phone'
+  | 'dashboard' | 'clipboard' | 'message' | 'log-out' | 'search' | 'chevron-down' | 'chevron-right' | 'x' | 'lock' | 'refresh';
 
 /** Small inline icon set (Lucide paths, ISC license). Size comes from Tailwind classes, default h-4 w-4. */
 @Component({
@@ -58,6 +59,31 @@ export type IconName =
         @case ('plus') { <path d="M5 12h14" /><path d="M12 5v14" /> }
         @case ('phone') {
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+        }
+        @case ('dashboard') {
+          <rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" />
+          <rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" />
+        }
+        @case ('clipboard') {
+          <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+          <path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" />
+        }
+        @case ('message') { <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /> }
+        @case ('log-out') {
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" />
+          <line x1="21" x2="9" y1="12" y2="12" />
+        }
+        @case ('search') { <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /> }
+        @case ('chevron-down') { <path d="m6 9 6 6 6-6" /> }
+        @case ('chevron-right') { <path d="m9 18 6-6-6-6" /> }
+        @case ('x') { <path d="M18 6 6 18" /><path d="m6 6 12 12" /> }
+        @case ('lock') {
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        }
+        @case ('refresh') {
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" />
         }
       }
     </svg>
