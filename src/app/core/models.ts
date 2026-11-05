@@ -103,3 +103,24 @@ export interface QuoteCreated {
   fullName: string;
   email: string;
 }
+
+// ---------- online payment ----------
+export interface CheckoutResponse {
+  checkoutUrl: string;
+}
+
+export interface PaymentStatus {
+  bookingRef: string;
+  bookingStatus: string;
+  paymentStatus: string;
+  /** Initiated | Succeeded | Failed | Refunded: the state of this one payment attempt */
+  attemptStatus: string;
+  amount: number;
+  currency: string;
+  failureReason: string | null;
+}
+
+export interface SandboxResult {
+  outcome: 'Succeeded' | 'Failed';
+  reason: string | null;
+}

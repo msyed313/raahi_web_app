@@ -89,6 +89,16 @@ export const routes: Routes = [
   canActivate: [customerGuard],
   loadComponent: () => import('./account/my-rides').then((m) => m.MyRides),
 },
+      {
+        path: 'pay/sandbox',
+        title: 'Test payment - Raahi',
+        loadComponent: () => import('./account/pay-sandbox/pay-sandbox').then((m) => m.PaySandbox),
+      },
+      {
+        path: 'payment/result',
+        title: 'Payment - Raahi',
+        loadComponent: () => import('./account/payment-result/payment-result').then((m) => m.PaymentResult),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

@@ -5,11 +5,14 @@ import { environment } from '../../environments/environment';
 import {
   BookingConfirmation,
   CalculatePriceRequest,
+  CheckoutResponse,
   CreateBookingRequest,
   CreateQuoteRequest,
+  PaymentStatus,
   PriceResult,
   QuoteCreated,
   RouteItem,
+  SandboxResult,
   VehicleType,
 } from './models';
 
@@ -39,5 +42,21 @@ export class ApiService {
 
   createQuote(request: CreateQuoteRequest): Observable<QuoteCreated> {
     return this.http.post<QuoteCreated>(`${this.base}/quotes`, request);
+  }
+    // ---------- online payment ----------
+  startCheckout(bookingRef: string, email: string): Observable<CheckoutResponse> {
+    return this.http.post<CheckoutResponse>(`${this.base}/payments/checkout`, { bookingRef, email });
+  }
+
+  retryPayment(transactionId: string): Observable<CheckoutResponse> {
+    return this.http.post<CheckoutResponse>(`${this.base}/payments/retry`, { transactionId });
+  }
+
+  paymentStatus(transactionId: string): Observable<PaymentStatus> {
+    return this.http.get<PaymentStatus>(`${this.base}/payments/status/${encodeURIComponent(transactionId)}`);
+  }
+
+  sandboxPay(transactionId: string, cardNumber: string): Observable<SandboxResult> {
+    return this.http.post<SandboxResult>(`${this.base}/payments/sandbox/complete`, { transactionId, cardNumber });
   }
 }

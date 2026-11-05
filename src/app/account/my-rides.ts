@@ -7,6 +7,7 @@ import { RidePhase, isSoon, ridePhase, spanText } from '../core/ride-time';
 import { bookingStatusClass, paymentLabel, paymentStatusClass, statusLabel } from '../core/status';
 import { Icon } from '../shared/icon';
 import { AccountTabs } from './account-tabs';
+import { ApiService } from '../core/api.service';
 
 interface RideView extends CustomerRide {
   pickup: Date;
@@ -81,7 +82,17 @@ interface RideView extends CustomerRide {
                   <span class="font-semibold">{{ r.currency }} {{ r.totalAmount | number: '1.0-0' }}</span>
                 </span>
               </div>
+                @if (r.paymentMethod === 'Card' && r.status === 'Pending' && r.paymentStatus !== 'Paid') {
+                <div class="mt-2 flex justify-end">
+                  <button type="button" class="btn btn-accent btn-sm" (click)="payNow(r)" [disabled]="paying() === r.bookingId">
+                    <app-icon name="credit-card" size="h-3.5 w-3.5" />
+                    {{ paying() === r.bookingId ? 'Opening…' : 'Pay now' }}
+                  </button>
+                </div>
+              }
             </article>
+            
+                           
           } @empty {
             <div class="card py-8 text-center">
               <app-icon name="car" size="mx-auto h-8 w-8 text-slate-300" />
@@ -139,7 +150,9 @@ export class MyRides implements OnInit {
       .filter((r) => r.phase !== 'upcoming' && r.phase !== 'ongoing')
       .sort((a, b) => b.pickup.getTime() - a.pickup.getTime()),
   );
+     private readonly api = inject(ApiService);
 
+  readonly paying = signal<number | null>(null);
   readonly visible = computed(() => (this.tab() === 'upcoming' ? this.upcoming() : this.past()));
 
   readonly tabs = computed(() => [
@@ -215,5 +228,19 @@ export class MyRides implements OnInit {
       default:
         return `Pickup was ${spanText(diff)} ago`;
     }
+  }
+ payNow(r: RideView): void {
+    const email = this.auth.session()?.email;
+    if (!email) return;
+
+    this.paying.set(r.bookingId);
+    this.error.set(null);
+    this.api.startCheckout(r.bookingRef, email).subscribe({
+      next: (res) => window.location.assign(res.checkoutUrl),
+      error: (err) => {
+        this.error.set(apiErrorMessage(err));
+        this.paying.set(null);
+      },
+    });
   }
 }

@@ -1,0 +1,56 @@
+<div class="mx-auto w-full max-w-md px-4 py-8">
+      @if (info(); as p) {
+        <div class="card text-center">
+          @switch (p.attemptStatus) {
+            @case ('Succeeded') {
+              <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <app-icon name="check" size="h-5 w-5" />
+              </span>
+              <h1 class="mt-3 text-lg font-bold">Payment received</h1>
+              <p class="mt-1 text-xs text-slate-500">Your booking is confirmed. A receipt is on its way to your email.</p>
+            }
+            @case ('Failed') {
+              <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-700">
+                <app-icon name="x" size="h-5 w-5" />
+              </span>
+              <h1 class="mt-3 text-lg font-bold">Payment not completed</h1>
+              <p class="mt-1 text-xs text-slate-500">
+                {{ p.failureReason || 'Your card was not charged.' }} Your booking is saved, and you can try again.
+              </p>
+            }
+            @default {
+              <span class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-saffron-100 text-saffron-700">
+                <app-icon name="clock" size="h-5 w-5" />
+              </span>
+              <h1 class="mt-3 text-lg font-bold">{{ waiting() ? 'Confirming your payment…' : 'Still processing' }}</h1>
+              <p class="mt-1 text-xs text-slate-500">
+                {{ waiting() ? 'This usually takes a few seconds.' : 'We have not heard back yet. You will get an email when it is confirmed, and My rides shows the latest status.' }}
+              </p>
+            }
+          }
+
+          <p class="mt-3 inline-block rounded-lg bg-navy-900 px-4 py-2 font-mono text-sm font-semibold tracking-wide text-white">{{ p.bookingRef }}</p>
+          <p class="mt-2 text-sm font-semibold text-navy-900">{{ p.currency }} {{ p.amount | number: '1.0-0' }}</p>
+
+          @if (error()) { <p class="mt-2 text-xs text-red-600" role="alert">{{ error() }}</p> }
+
+          <div class="mt-4 flex flex-wrap justify-center gap-2">
+            @if (p.attemptStatus === 'Failed') {
+              <button type="button" class="btn btn-accent btn-sm" [disabled]="retrying()" (click)="retry()">
+                {{ retrying() ? 'Opening…' : 'Try again' }}
+              </button>
+            }
+            <a routerLink="/account/rides" class="btn btn-outline btn-sm">My rides</a>
+            <a routerLink="/" class="btn btn-outline btn-sm">Home</a>
+          </div>
+        </div>
+      } @else if (loadError()) {
+        <div class="card text-center">
+          <p class="text-sm font-semibold">We could not find this payment.</p>
+          <p class="mt-1 text-xs text-slate-500">{{ loadError() }}</p>
+          <a routerLink="/" class="btn btn-outline btn-sm mt-3">Home</a>
+        </div>
+      } @else {
+        <p class="py-10 text-center text-xs text-slate-500">Loading…</p>
+      }
+    </div>
