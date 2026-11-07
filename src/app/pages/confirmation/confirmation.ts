@@ -3,8 +3,8 @@ import { Component, inject,signal} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BookingConfirmation } from '../../core/models';
 import { Icon } from '../../shared/icon';
-import { apiErrorMessage } from '../../core/api-error';
-import { ApiService } from '../../core/api.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { ApiService } from '../../core/apis/api.service';
 
 
 @Component({

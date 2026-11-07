@@ -1,8 +1,8 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../../core/api-error';
-import { ApiService } from '../../core/api.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { ApiService } from '../../core/apis/api.service';
 import { PaymentStatus } from '../../core/models';
 import { Icon } from '../../shared/icon';
 

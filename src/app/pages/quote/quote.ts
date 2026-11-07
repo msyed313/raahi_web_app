@@ -1,19 +1,22 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../../core/api-error';
-import { ApiService } from '../../core/api.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { ApiService } from '../../core/apis/api.service';
 import { toApiDateTime } from '../../core/format';
 import { CreateQuoteRequest, QuoteCreated, VehicleType } from '../../core/models';
 import { Icon } from '../../shared/icon';
-import { CustomerAuthService } from '../../core/customer-auth.service';
+import { CustomerAuthService } from '../../core/auth/customer-auth.service';
+import { AddressInput } from '../../shared/address-input';
+
+
 function flightNumber(control: AbstractControl): ValidationErrors | null {
   const value = ((control.value as string) ?? '').replace(/\s+/g, '');
   return value === '' || /^[A-Za-z0-9]{3,8}$/.test(value) ? null : { flight: true };
 }
 
 @Component({
-  imports: [ReactiveFormsModule, RouterLink, Icon],
+  imports: [ReactiveFormsModule, RouterLink, Icon,AddressInput],
   selector: 'app-quote',
   styles: ``,
   templateUrl: './quote.html',

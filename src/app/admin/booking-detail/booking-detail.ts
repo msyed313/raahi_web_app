@@ -1,7 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../../core/api-error';
+import { apiErrorMessage } from '../../core/apis/api-error';
 import {
   bookingStatusClass,
   paymentLabel,

@@ -1,6 +1,6 @@
 import { Component, ElementRef, OnInit, inject, output, signal, viewChild } from '@angular/core';
-import { apiErrorMessage } from '../core/api-error';
-import { CustomerAuthService } from '../core/customer-auth.service';
+import { apiErrorMessage } from '../core/apis/api-error';
+import { CustomerAuthService } from '../core/auth/customer-auth.service';
 
 interface GoogleId {
   initialize(config: { client_id: string; callback: (r: { credential: string }) => void }): void;

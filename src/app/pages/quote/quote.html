@@ -51,12 +51,12 @@
           <div class="grid gap-3 sm:grid-cols-2">
             <div>
               <label class="label" for="q-pickup">Pickup address</label>
-              <input id="q-pickup" class="input" formControlName="pickupAddress" autocomplete="off" [class.invalid]="bad('pickupAddress')" />
+                              <app-address-input inputId="q-pickup" [control]="form.controls.pickupAddress" [invalid]="bad('pickupAddress')" />
               @if (err('pickupAddress'); as e) { <p class="field-error">{{ e }}</p> }
             </div>
             <div>
               <label class="label" for="q-drop">Drop-off address</label>
-              <input id="q-drop" class="input" formControlName="dropoffAddress" autocomplete="off" [class.invalid]="bad('dropoffAddress')" />
+              <app-address-input inputId="q-drop" [control]="form.controls.dropoffAddress" [invalid]="bad('dropoffAddress')" />
               @if (err('dropoffAddress'); as e) { <p class="field-error">{{ e }}</p> }
             </div>
             <div>

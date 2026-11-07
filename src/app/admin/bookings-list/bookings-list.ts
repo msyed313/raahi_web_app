@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
-import { apiErrorMessage } from '../../core/api-error';
+import { apiErrorMessage } from '../../core/apis/api-error';
 import {
   BOOKING_STATUSES,
   bookingStatusClass,

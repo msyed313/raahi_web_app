@@ -164,3 +164,71 @@ export interface DashboardResponse {
   summary: DashboardSummary;
   upcoming: UpcomingPickup[];
 }
+// ---------- catalog ----------
+export interface CatalogVehicle {
+  id: number;
+  name: string;
+  description: string | null;
+  maxPassengers: number;
+  maxLuggage: number;
+  imageUrl: string | null;
+  baseFare: number;
+  perKmRate: number;
+  minimumFare: number;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+export type CatalogVehicleSave = Omit<CatalogVehicle, 'id'>;
+
+export interface RoutePriceItem {
+  vehicleTypeId: number;
+  price: number;
+}
+
+export interface CatalogRoute {
+  id: number;
+  name: string;
+  pickupLabel: string;
+  dropoffLabel: string;
+  distanceKm: number | null;
+  estimatedMinutes: number | null;
+  isActive: boolean;
+  sortOrder: number;
+  prices: RoutePriceItem[];
+}
+export interface QuoteActionResult { emailSent: boolean; }
+// ---------- catalog ----------
+export interface CatalogVehicle {
+  id: number;
+  name: string;
+  description: string | null;
+  maxPassengers: number;
+  maxLuggage: number;
+  imageUrl: string | null;
+  baseFare: number;
+  perKmRate: number;
+  minimumFare: number;
+  isActive: boolean;
+  sortOrder: number;
+}
+
+
+export interface RoutePriceItem {
+  vehicleTypeId: number;
+  price: number;
+}
+
+export interface CatalogRoute {
+  id: number;
+  name: string;
+  pickupLabel: string;
+  dropoffLabel: string;
+  distanceKm: number | null;
+  estimatedMinutes: number | null;
+  isActive: boolean;
+  sortOrder: number;
+  prices: RoutePriceItem[];
+}
+
+export type CatalogRouteSave = Omit<CatalogRoute, 'id'>;

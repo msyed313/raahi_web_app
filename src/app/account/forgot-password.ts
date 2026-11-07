@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../core/api-error';
-import { CustomerAuthService } from '../core/customer-auth.service';
+import { apiErrorMessage } from '../core/apis/api-error';
+import { CustomerAuthService } from '../core/auth/customer-auth.service';
 import { passwordRule, passwordsMatch } from '../core/password';
 import { Icon } from '../shared/icon';
 import { OtpStep } from './otp-step/otp-step';

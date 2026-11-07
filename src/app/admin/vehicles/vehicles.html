@@ -1,0 +1,98 @@
+ <div class="mb-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-bold">Vehicles</h1>
+        <p class="text-xs text-slate-500">Vehicle types, capacity and per-km pricing for custom trips. Admin only.</p>
+      </div>
+      <button type="button" class="btn btn-accent btn-sm" (click)="startNew()"><app-icon name="plus" /> Add vehicle</button>
+    </div>
+
+    @if (error()) {
+      <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">{{ error() }}</div>
+    }
+    @if (flash()) {
+      <div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">{{ flash() }}</div>
+    }
+
+    @if (editing() !== undefined) {
+      <form [formGroup]="form" (submit)="save($event)" novalidate class="card mb-3 space-y-3">
+        <h2 class="text-sm font-semibold">{{ editing() === null ? 'New vehicle' : 'Edit vehicle' }}</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label class="label" for="vname">Name</label>
+            <input id="vname" class="input" formControlName="name" />
+          </div>
+          <div>
+            <label class="label" for="vdesc">Description</label>
+            <input id="vdesc" class="input" formControlName="description" />
+          </div>
+          <div>
+            <label class="label" for="vpax">Max passengers</label>
+            <input id="vpax" type="number" min="1" max="50" class="input" formControlName="maxPassengers" />
+          </div>
+          <div>
+            <label class="label" for="vbag">Max luggage</label>
+            <input id="vbag" type="number" min="0" max="50" class="input" formControlName="maxLuggage" />
+          </div>
+          <div>
+            <label class="label" for="vbase">Base fare</label>
+            <input id="vbase" type="number" min="0" class="input" formControlName="baseFare" />
+          </div>
+          <div>
+            <label class="label" for="vkm">Rate per km</label>
+            <input id="vkm" type="number" min="0" class="input" formControlName="perKmRate" />
+          </div>
+          <div>
+            <label class="label" for="vmin">Minimum fare</label>
+            <input id="vmin" type="number" min="0" class="input" formControlName="minimumFare" />
+          </div>
+          <div>
+            <label class="label" for="vsort">Sort order</label>
+            <input id="vsort" type="number" class="input" formControlName="sortOrder" />
+          </div>
+          <div class="sm:col-span-2">
+            <label class="label" for="vimg">Image URL <span class="text-slate-400">(optional)</span></label>
+            <input id="vimg" class="input" formControlName="imageUrl" />
+          </div>
+        </div>
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" formControlName="isActive" class="accent-navy-900" /> Active (customers can book it)
+        </label>
+        @if (form.invalid && form.touched) {
+          <p class="text-xs text-red-600">Please fill in a name, capacity and valid amounts.</p>
+        }
+        <div class="flex justify-end gap-2">
+          <button type="button" class="btn btn-outline btn-sm" (click)="cancel()" [disabled]="busy()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="busy()">{{ busy() ? 'Saving…' : 'Save' }}</button>
+        </div>
+      </form>
+    }
+
+    <div class="card !p-0">
+      <div class="overflow-x-auto">
+        <table class="table-compact">
+          <thead>
+            <tr><th>Name</th><th>Seats / bags</th><th>Base</th><th>Per km</th><th>Minimum</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (v of items(); track v.id) {
+              <tr>
+                <td class="font-semibold">{{ v.name }}</td>
+                <td>{{ v.maxPassengers }} / {{ v.maxLuggage }}</td>
+                <td>{{ v.baseFare | number: '1.0-0' }}</td>
+                <td>{{ v.perKmRate | number: '1.0-0' }}</td>
+                <td>{{ v.minimumFare | number: '1.0-0' }}</td>
+                <td>
+                  <span class="badge" [class]="v.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'">
+                    {{ v.isActive ? 'Active' : 'Hidden' }}
+                  </span>
+                </td>
+                <td class="text-right"><button type="button" class="btn btn-outline btn-sm" (click)="edit(v)">Edit</button></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="7" class="py-6 text-center text-xs text-slate-500">{{ loading() ? 'Loading…' : 'No vehicles yet.' }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="mt-2 text-[11px] text-slate-400">Vehicles are hidden instead of deleted, so old bookings keep their history.</p>

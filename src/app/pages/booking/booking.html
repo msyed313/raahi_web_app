@@ -63,14 +63,16 @@
           
             <div>
               <label class="label" for="pickupAddress">Pickup address</label>
-              <input id="pickupAddress" class="input" formControlName="pickupAddress" autocomplete="off"
-                     placeholder="e.g. Islamabad International Airport" [class.invalid]="bad(trip, 'pickupAddress')" />
+                           <app-address-input inputId="pickupAddress" [control]="trip.controls.pickupAddress"
+                     placeholder="e.g. Islamabad International Airport" [invalid]="bad(trip, 'pickupAddress')"
+                     (picked)="setPoint('pickup', $event)" (cleared)="clearPoint('pickup')" />
               @if (err(trip, 'pickupAddress'); as e) { <p class="field-error">{{ e }}</p> }
             </div>
             <div>
               <label class="label" for="dropoffAddress">Drop-off address</label>
-              <input id="dropoffAddress" class="input" formControlName="dropoffAddress" autocomplete="off"
-                     placeholder="e.g. F-7 Markaz, Islamabad" [class.invalid]="bad(trip, 'dropoffAddress')" />
+                           <app-address-input inputId="dropoffAddress" [control]="trip.controls.dropoffAddress"
+                     placeholder="e.g. F-7 Markaz, Islamabad" [invalid]="bad(trip, 'dropoffAddress')"
+                     (picked)="setPoint('dropoff', $event)" (cleared)="clearPoint('dropoff')" />
               @if (err(trip, 'dropoffAddress'); as e) { <p class="field-error">{{ e }}</p> }
             </div>
           </div>
@@ -85,10 +87,12 @@
             @if (mode() === 'custom') {
               <div>
                 <label class="label" for="distanceKm">Approx. distance (km)</label>
-                <input id="distanceKm" type="number" step="0.1" min="0" class="input" formControlName="distanceKm"
-                       placeholder="e.g. 20" [class.invalid]="bad(trip, 'distanceKm')" />
+                                <input id="distanceKm" type="number" step="0.1" min="0" class="input" formControlName="distanceKm"
+                       placeholder="e.g. 20" [class.invalid]="bad(trip, 'distanceKm')" [readOnly]="distanceAuto()" />
                 @if (err(trip, 'distanceKm'); as e) { <p class="field-error">{{ e }}</p> }
-                @else { <p class="mt-1 text-[11px] text-slate-400">Calculated automatically once address search is added.</p> }
+                @else if (distanceBusy()) { <p class="mt-1 text-[11px] text-slate-400">Calculating driving distance…</p> }
+                @else if (distanceAuto()) { <p class="mt-1 text-[11px] text-emerald-600">Driving distance calculated from the chosen addresses.</p> }
+                @else { <p class="mt-1 text-[11px] text-slate-400">Pick both addresses from the suggestions to calculate this automatically.</p> }
               </div>
             } @else {
               <div>

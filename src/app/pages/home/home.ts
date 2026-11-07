@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { ApiService } from '../../core/api.service';
+import { ApiService } from '../../core/apis/api.service';
 import { duration } from '../../core/format';
 import { RouteItem, VehicleType } from '../../core/models';
 import { Icon } from '../../shared/icon';

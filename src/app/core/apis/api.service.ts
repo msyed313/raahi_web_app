@@ -1,20 +1,22 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 import {
   BookingConfirmation,
   CalculatePriceRequest,
   CheckoutResponse,
   CreateBookingRequest,
   CreateQuoteRequest,
+  GeoPoint,
   PaymentStatus,
+  PlaceSuggestion,
   PriceResult,
   QuoteCreated,
   RouteItem,
   SandboxResult,
   VehicleType,
-} from './models';
+} from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -59,4 +61,20 @@ export class ApiService {
   sandboxPay(transactionId: string, cardNumber: string): Observable<SandboxResult> {
     return this.http.post<SandboxResult>(`${this.base}/payments/sandbox/complete`, { transactionId, cardNumber });
   }
+
+    // ---------- address search ----------
+  searchPlaces(q: string): Observable<PlaceSuggestion[]> {
+    return this.http.get<PlaceSuggestion[]>(`${this.base}/places/autocomplete`, { params: { q } });
+  }
+
+  drivingDistance(from: GeoPoint, to: GeoPoint): Observable<{ distanceKm: number }> {
+    return this.http.post<{ distanceKm: number }>(`${this.base}/places/distance`, {
+      fromLat: from.lat,
+      fromLon: from.lon,
+      toLat: to.lat,
+      toLon: to.lon,
+    });
+  }
+
+
 }

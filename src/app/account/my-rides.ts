@@ -1,13 +1,13 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../core/api-error';
-import { CustomerAuthService, CustomerRide } from '../core/customer-auth.service';
+import { apiErrorMessage } from '../core/apis/api-error';
+import { CustomerAuthService, CustomerRide } from '../core/auth/customer-auth.service';
 import { RidePhase, isSoon, ridePhase, spanText } from '../core/ride-time';
 import { bookingStatusClass, paymentLabel, paymentStatusClass, statusLabel } from '../core/status';
 import { Icon } from '../shared/icon';
 import { AccountTabs } from './account-tabs';
-import { ApiService } from '../core/api.service';
+import { ApiService } from '../core/apis/api.service';
 
 interface RideView extends CustomerRide {
   pickup: Date;

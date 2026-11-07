@@ -6,9 +6,14 @@ import {
   AdminBookingDetailResponse,
   AdminBookingItem,
   AdminQuoteItem,
+  CatalogRoute,
+  CatalogRouteSave,
+  CatalogVehicle,
+  CatalogVehicleSave,
   DashboardResponse,
   Driver,
   Paged,
+  QuoteActionResult,
   RespondToQuoteRequest,
   UpdateStatusRequest,
 } from './admin-models';
@@ -68,11 +73,33 @@ export class AdminApiService {
     return this.http.get<Paged<AdminQuoteItem>>(`${this.base}/quotes`, { params: toParams({ ...f }) });
   }
 
-  respondToQuote(id: number, body: RespondToQuoteRequest): Observable<unknown> {
-    return this.http.post(`${this.base}/quotes/${id}/respond`, body);
+    respondToQuote(id: number, body: RespondToQuoteRequest): Observable<QuoteActionResult> {
+    return this.http.post<QuoteActionResult>(`${this.base}/quotes/${id}/respond`, body);
   }
 
-  declineQuote(id: number, adminNote: string | null): Observable<unknown> {
-    return this.http.post(`${this.base}/quotes/${id}/decline`, { adminNote });
+  declineQuote(id: number, adminNote: string | null): Observable<QuoteActionResult> {
+    return this.http.post<QuoteActionResult>(`${this.base}/quotes/${id}/decline`, { adminNote });
   }
+ 
+    // ---------- catalog (Admin role only) ----------
+  vehicles(): Observable<CatalogVehicle[]> {
+    return this.http.get<CatalogVehicle[]>(`${this.base}/catalog/vehicles`);
+  }
+
+  saveVehicle(id: number | null, body: CatalogVehicleSave): Observable<CatalogVehicle> {
+    return id === null
+      ? this.http.post<CatalogVehicle>(`${this.base}/catalog/vehicles`, body)
+      : this.http.put<CatalogVehicle>(`${this.base}/catalog/vehicles/${id}`, body);
+  }
+
+  catalogRoutes(): Observable<CatalogRoute[]> {
+    return this.http.get<CatalogRoute[]>(`${this.base}/catalog/routes`);
+  }
+
+  saveRoute(id: number | null, body: CatalogRouteSave): Observable<CatalogRoute> {
+    return id === null
+      ? this.http.post<CatalogRoute>(`${this.base}/catalog/routes`, body)
+      : this.http.put<CatalogRoute>(`${this.base}/catalog/routes/${id}`, body);
+  }
+
 }

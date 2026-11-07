@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../core/auth.service';
+import { AuthService } from '../core/auth/auth.service';
 import { Icon, IconName } from '../shared/icon';
 
 @Component({
@@ -64,5 +64,7 @@ export class AdminShell {
     { path: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { path: '/admin/bookings', label: 'Bookings', icon: 'clipboard' },
     { path: '/admin/quotes', label: 'Quotes', icon: 'message' },
+        { path: '/admin/vehicles', label: 'Vehicles', icon: 'car' },
+    { path: '/admin/routes', label: 'Routes', icon: 'map-pin' },
   ];
 }

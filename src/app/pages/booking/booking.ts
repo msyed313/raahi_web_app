@@ -9,19 +9,21 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { apiErrorMessage } from '../../core/api-error';
-import { ApiService } from '../../core/api.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { ApiService } from '../../core/apis/api.service';
 import { isAirport, localDateTimeAhead, toApiDateTime } from '../../core/format';
 import {
   CreateBookingRequest,
+  GeoPoint,
   PaymentMethod,
+  PlaceSuggestion,
   PriceResult,
   RouteItem,
   VehicleType,
 } from '../../core/models';
 import { Icon, IconName } from '../../shared/icon';
-   import { CustomerAuthService } from '../../core/customer-auth.service';
-
+   import { CustomerAuthService } from '../../core/auth/customer-auth.service';
+import { AddressInput } from '../../shared/address-input';
 
 
 interface VehicleOption {
@@ -46,7 +48,7 @@ const PHONE = /^\+?[0-9][0-9 \-]{6,19}$/;
 
 @Component({
   selector: 'app-booking',
-  imports: [ReactiveFormsModule, RouterLink, DecimalPipe, DatePipe, Icon],
+  imports: [ReactiveFormsModule, RouterLink, DecimalPipe, DatePipe, Icon, AddressInput],
   templateUrl: './booking.html',
 })
 export class Booking implements OnInit {
@@ -75,7 +77,10 @@ export class Booking implements OnInit {
   readonly loadingOptions = signal(false);
   readonly submitting = signal(false);
   readonly error = signal<string | null>(null);
-
+    // address search: coordinates of the chosen suggestions, and the automatic distance
+  private readonly points: { pickup: GeoPoint | null; dropoff: GeoPoint | null } = { pickup: null, dropoff: null };
+  readonly distanceAuto = signal(false);
+  readonly distanceBusy = signal(false);
   readonly trip = this.fb.nonNullable.group({
     routeId: [null as number | null],
     pickupAddress: ['', [Validators.required, Validators.maxLength(300)]],
@@ -128,6 +133,41 @@ export class Booking implements OnInit {
     });
   }
 
+    // ---------- address search ----------
+  setPoint(which: 'pickup' | 'dropoff', place: PlaceSuggestion): void {
+    this.points[which] = { lat: place.lat, lon: place.lon };
+    this.updateDistance();
+  }
+
+  clearPoint(which: 'pickup' | 'dropoff'): void {
+    if (!this.points[which] && !this.distanceAuto()) return;
+    this.points[which] = null;
+    if (this.distanceAuto()) {
+      this.distanceAuto.set(false);
+      if (this.mode() === 'custom') this.trip.controls.distanceKm.setValue(null);
+    }
+  }
+
+  private updateDistance(): void {
+    const { pickup, dropoff } = this.points;
+    if (this.mode() !== 'custom' || !pickup || !dropoff) return;
+
+    this.distanceBusy.set(true);
+    this.api.drivingDistance(pickup, dropoff).subscribe({
+      next: (r) => {
+        this.trip.controls.distanceKm.setValue(r.distanceKm);
+        this.distanceAuto.set(true);
+        this.distanceBusy.set(false);
+      },
+      error: () => {
+        // the service is down: the customer can still type the distance by hand
+        this.distanceAuto.set(false);
+        this.distanceBusy.set(false);
+      },
+    });
+  }
+
+
   // ---------- helpers used by the template ----------
   minNow(): string {
     return localDateTimeAhead(MIN_HOURS_AHEAD);
@@ -177,6 +217,7 @@ export class Booking implements OnInit {
     distanceKm.updateValueAndValidity();
     this.options.set([]);
     this.selected.set(null);
+    if (mode === 'custom') this.updateDistance();
   }
 
   fillAddressesFromRoute(): void {

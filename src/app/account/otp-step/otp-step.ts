@@ -1,7 +1,7 @@
 import { Component, DestroyRef, OnInit, inject, input, output, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { apiErrorMessage } from '../../core/api-error';
-import { CustomerAuthService, OtpPurpose } from '../../core/customer-auth.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { CustomerAuthService, OtpPurpose } from '../../core/auth/customer-auth.service';
 import { Icon } from '../../shared/icon';
 @Component({
   imports: [ReactiveFormsModule, Icon],

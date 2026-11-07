@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, shareReplay, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { utc } from './status';
+import { environment } from '../../../environments/environment';
+import { utc } from '../status';
 
 export type OtpPurpose = 'SignUp' | 'ResetPassword';
 
@@ -58,6 +58,23 @@ export interface CustomerRide {
   driverPlate: string | null;
 }
 
+export interface CustomerQuote {
+  quoteId: number;
+  quoteRef: string;
+  status: string;
+  pickupAddress: string;
+  dropoffAddress: string;
+  pickupDateTime: string | null;
+  passengers: number;
+  vehicleType: string | null;
+  quotedAmount: number | null;
+  currency: string;
+  adminNote: string | null;
+  quotedAtUtc: string | null;
+  expiresAtUtc: string | null;
+  createdAtUtc: string;
+}
+
 
 const BASE = `${environment.apiUrl}/api/customer`;
 const STORAGE_KEY = 'raahi.customer.session';
@@ -85,7 +102,9 @@ export class CustomerAuthService {
   providers(): Observable<Providers> {
     return (this.providers$ ??= this.http.get<Providers>(`${BASE}/auth/providers`).pipe(shareReplay(1)));
   }
-
+    quotes(): Observable<CustomerQuote[]> {
+    return this.http.get<CustomerQuote[]>(`${BASE}/me/quotes`);
+  }
   requestOtp(purpose: OtpPurpose, email: string): Observable<OtpSent> {
     const path = purpose === 'SignUp' ? 'signup/request-otp' : 'forgot/request-otp';
     return this.http.post<OtpSent>(`${BASE}/auth/${path}`, { email });

@@ -124,3 +124,15 @@ export interface SandboxResult {
   outcome: 'Succeeded' | 'Failed';
   reason: string | null;
 }
+
+// ---------- address search ----------
+export interface PlaceSuggestion {
+  address: string;
+  lat: number;
+  lon: number;
+}
+
+export interface GeoPoint {
+  lat: number;
+  lon: number;
+}

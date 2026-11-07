@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth.guard';
-   import { customerGuard } from './core/customer.guard';
+import { authGuard } from './core/auth/auth.guard';
+   import { customerGuard } from './core/auth/customer.guard';
 export const routes: Routes = [
   // ---------- admin ----------
   {
@@ -33,6 +33,16 @@ export const routes: Routes = [
         path: 'quotes',
         title: 'Quotes - Raahi Admin',
         loadComponent: () => import('./admin/quotes/quotes').then((m) => m.Quotes),
+      },
+            {
+        path: 'vehicles',
+        title: 'Vehicles - Raahi Admin',
+        loadComponent: () => import('./admin/vehicles/vehicles').then((m) => m.Vehicles),
+      },
+      {
+        path: 'routes',
+        title: 'Routes & prices - Raahi Admin',
+        loadComponent: () => import('./admin/routes/routes').then((m) => m.RoutesAdmin),
       },
     ],
   },
@@ -83,6 +93,12 @@ export const routes: Routes = [
      canActivate: [customerGuard],
      loadComponent: () => import('./account/profile/profile').then((m) => m.Profile),
    },
+         {
+        path: 'account/quotes',
+        title: 'My quotes - Raahi',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./account/my-quotes/my-quotes').then((m) => m.MyQuotes),
+      },
    {
   path: 'account/rides',
   title: 'My rides - Raahi',

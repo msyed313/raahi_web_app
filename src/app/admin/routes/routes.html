@@ -1,0 +1,103 @@
+ <div class="mb-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-bold">Routes &amp; prices</h1>
+        <p class="text-xs text-slate-500">Fixed-price routes. Leave a price empty if a vehicle is not offered on that route. Admin only.</p>
+      </div>
+      <button type="button" class="btn btn-accent btn-sm" (click)="startNew()"><app-icon name="plus" /> Add route</button>
+    </div>
+
+    @if (error()) {
+      <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">{{ error() }}</div>
+    }
+    @if (flash()) {
+      <div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">{{ flash() }}</div>
+    }
+
+    @if (editing() !== undefined) {
+      <form [formGroup]="form" (submit)="save($event)" novalidate class="card mb-3 space-y-3">
+        <h2 class="text-sm font-semibold">{{ editing() === null ? 'New route' : 'Edit route' }}</h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <label class="label" for="rname">Route name</label>
+            <input id="rname" class="input" formControlName="name" placeholder="Airport to F-7" />
+          </div>
+          <div>
+            <label class="label" for="rfrom">Pickup label</label>
+            <input id="rfrom" class="input" formControlName="pickupLabel" />
+          </div>
+          <div>
+            <label class="label" for="rto">Drop-off label</label>
+            <input id="rto" class="input" formControlName="dropoffLabel" />
+          </div>
+          <div>
+            <label class="label" for="rkm">Distance (km)</label>
+            <input id="rkm" type="number" min="0" step="0.1" class="input" formControlName="distanceKm" />
+          </div>
+          <div>
+            <label class="label" for="rmin">Estimated minutes</label>
+            <input id="rmin" type="number" min="0" class="input" formControlName="estimatedMinutes" />
+          </div>
+          <div>
+            <label class="label" for="rsort">Sort order</label>
+            <input id="rsort" type="number" class="input" formControlName="sortOrder" />
+          </div>
+        </div>
+
+        <fieldset>
+          <legend class="label">Price per vehicle</legend>
+          <div class="grid gap-2 sm:grid-cols-2" formGroupName="prices">
+            @for (v of vehicles(); track v.id) {
+              <label class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm">
+                <span>{{ v.name }}</span>
+                <input type="number" min="0" class="input w-28 text-right" [formControlName]="'v' + v.id" placeholder="Not offered" />
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" formControlName="isActive" class="accent-navy-900" /> Active (customers can pick it)
+        </label>
+        @if (form.invalid && form.touched) {
+          <p class="text-xs text-red-600">Please fill in the route name and both labels.</p>
+        }
+        <div class="flex justify-end gap-2">
+          <button type="button" class="btn btn-outline btn-sm" (click)="cancel()" [disabled]="busy()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="busy()">{{ busy() ? 'Saving…' : 'Save' }}</button>
+        </div>
+      </form>
+    }
+
+    <div class="card !p-0">
+      <div class="overflow-x-auto">
+        <table class="table-compact">
+          <thead>
+            <tr><th>Route</th><th>Distance</th><th>Prices</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            @for (r of items(); track r.id) {
+              <tr>
+                <td>
+                  <span class="block font-semibold">{{ r.name }}</span>
+                  <span class="block text-[11px] text-slate-500">{{ r.pickupLabel }} &rarr; {{ r.dropoffLabel }}</span>
+                </td>
+                <td>{{ r.distanceKm ? (r.distanceKm | number: '1.0-1') + ' km' : '—' }}</td>
+                <td class="text-xs">
+                  @for (p of r.prices; track p.vehicleTypeId) {
+                    <span class="mr-2 inline-block">{{ vehicleName(p.vehicleTypeId) }}: <b>{{ p.price | number: '1.0-0' }}</b></span>
+                  } @empty { <span class="text-slate-400">No prices</span> }
+                </td>
+                <td>
+                  <span class="badge" [class]="r.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'">
+                    {{ r.isActive ? 'Active' : 'Hidden' }}
+                  </span>
+                </td>
+                <td class="text-right"><button type="button" class="btn btn-outline btn-sm" (click)="edit(r)">Edit</button></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="py-6 text-center text-xs text-slate-500">{{ loading() ? 'Loading…' : 'No routes yet.' }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>

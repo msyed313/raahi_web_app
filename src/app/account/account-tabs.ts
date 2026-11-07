@@ -12,6 +12,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       <a routerLink="/account/profile" routerLinkActive #profile="routerLinkActive"
          class="-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition"
          [class]="profile.isActive ? 'border-navy-900 text-navy-900' : 'border-transparent text-slate-500 hover:text-navy-900'">Profile</a>
+               <a routerLink="/account/quotes" routerLinkActive #quotes="routerLinkActive"
+         class="-mb-px border-b-2 px-3 py-2 text-sm font-semibold transition"
+         [class]="quotes.isActive ? 'border-navy-900 text-navy-900' : 'border-transparent text-slate-500 hover:text-navy-900'">Quotes</a>
     </nav>
   `,
 })

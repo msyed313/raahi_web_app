@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { debounceTime } from 'rxjs';
-import { apiErrorMessage } from '../../core/api-error';
+import { apiErrorMessage } from '../../core/apis/api-error';
 import { QUOTE_STATUSES, quoteStatusClass, utc } from '../../core/status';
 import { Icon } from '../../shared/icon';
 import { AdminApiService } from '../admin-api.service';
@@ -128,7 +128,7 @@ export class Quotes implements OnInit {
         validityHours: v.validityHours ? Number(v.validityHours) : null,
       })
       .subscribe({
-        next: () => this.done(`${q.quoteRef}: price saved.`),
+                next: (r) => this.done(`${q.quoteRef}: price saved. ${r.emailSent ? 'The customer has been emailed.' : 'The email could not be sent, so please contact the customer.'}`),
         error: (err) => this.fail(err),
       });
   }
@@ -138,7 +138,7 @@ export class Quotes implements OnInit {
     this.busy.set(true);
     this.error.set(null);
     this.api.declineQuote(q.quoteId, this.priceForm.getRawValue().note.trim() || null).subscribe({
-      next: () => this.done(`${q.quoteRef}: request declined.`),
+            next: (r) => this.done(`${q.quoteRef}: request declined. ${r.emailSent ? 'The customer has been emailed.' : 'The email could not be sent.'}`),
       error: (err) => this.fail(err),
     });
   }

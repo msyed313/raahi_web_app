@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CustomerAuthService } from '../core/customer-auth.service';
+import { CustomerAuthService } from '../core/auth/customer-auth.service';
 import { Icon } from '../shared/icon';
 
 @Component({

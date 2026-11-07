@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { apiErrorMessage } from '../../core/api-error';
-import { CustomerAuthService, CustomerProfile } from '../../core/customer-auth.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { CustomerAuthService, CustomerProfile } from '../../core/auth/customer-auth.service';
 import { passwordRule, passwordsMatch } from '../../core/password';
 import { Icon } from '../../shared/icon';
 import { AccountTabs } from '../account-tabs';

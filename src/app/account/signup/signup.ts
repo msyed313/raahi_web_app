@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../../core/api-error';
-import { CustomerAuthService } from '../../core/customer-auth.service';
+import { apiErrorMessage } from '../../core/apis/api-error';
+import { CustomerAuthService } from '../../core/auth/customer-auth.service';
 import { passwordRule, passwordsMatch, safeReturnUrl } from '../../core/password';
 import { Icon } from '../../shared/icon';
 import { GoogleButton } from '../google-button';

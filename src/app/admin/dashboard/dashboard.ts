@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { apiErrorMessage } from '../../core/api-error';
+import { apiErrorMessage } from '../../core/apis/api-error';
 import { bookingStatusClass, statusLabel } from '../../core/status';
 import { Icon, IconName } from '../../shared/icon';
 import { AdminApiService } from '../admin-api.service';
