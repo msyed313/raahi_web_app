@@ -35,7 +35,11 @@
                   </p>
                   @if (q.expiresAtUtc) { <p class="mt-0.5">Valid until {{ utcDate(q.expiresAtUtc) | date: 'EEE d MMM, h:mm a' }}</p> }
                   @if (q.adminNote) { <p class="mt-1 text-slate-700">&ldquo;{{ q.adminNote }}&rdquo;</p> }
-                  <p class="mt-1 text-slate-600">To go ahead at this price, reply to the email we sent you.</p>
+                                    @if (isLive(q)) {
+                    <a [routerLink]="['/account/quotes', q.quoteId, 'book']" class="btn btn-accent btn-sm mt-2">Book at this price</a>
+                  } @else {
+                    <p class="mt-1 text-slate-600">This price has just expired.</p>
+                  }
                 </div>
               }
               @case ('Declined') {

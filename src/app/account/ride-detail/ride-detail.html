@@ -1,0 +1,167 @@
+ <div class="mx-auto w-full max-w-2xl px-4 py-6">
+      <a routerLink="/account/rides" class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-900">
+        <app-icon name="arrow-left" size="h-3.5 w-3.5" /> Back to my rides
+      </a>
+
+      @if (error()) {
+        <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">{{ error() }}</div>
+      }
+      @if (flash()) {
+        <div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">{{ flash() }}</div>
+      }
+
+      @if (ride(); as r) {
+        <div class="space-y-3">
+          <section class="card">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="text-xs font-semibold text-navy-600">{{ r.bookingRef }}</p>
+                <p class="text-base font-bold">{{ pickup(r) | date: 'EEE d MMM y, h:mm a' }}</p>
+              </div>
+              <span class="badge" [class]="statusClass(r.status)">{{ label(r.status) }}</span>
+            </div>
+
+            <div class="mt-3 space-y-1.5 text-sm">
+              <p class="flex items-start gap-1.5"><app-icon name="map-pin" size="mt-0.5 h-4 w-4 text-emerald-600" /> <span>{{ r.pickupAddress }}</span></p>
+              <p class="flex items-start gap-1.5"><app-icon name="map-pin" size="mt-0.5 h-4 w-4 text-red-500" /> <span>{{ r.dropoffAddress }}</span></p>
+            </div>
+
+            <dl class="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t border-slate-100 pt-3 text-xs">
+              <div><dt class="text-slate-500">Vehicle</dt><dd class="font-medium">{{ r.vehicleType }}</dd></div>
+              <div><dt class="text-slate-500">Passengers / bags</dt><dd class="font-medium">{{ r.passengers }} / {{ r.luggage }}</dd></div>
+              @if (r.flightNumber) { <div><dt class="text-slate-500">Flight</dt><dd class="font-medium uppercase">{{ r.flightNumber }}</dd></div> }
+              @if (r.routeName) { <div><dt class="text-slate-500">Route</dt><dd class="font-medium">{{ r.routeName }}</dd></div> }
+              @if (r.quoteRef) { <div><dt class="text-slate-500">From quote</dt><dd class="font-medium">{{ r.quoteRef }}</dd></div> }
+              @if (r.notes) { <div class="col-span-2"><dt class="text-slate-500">Notes</dt><dd class="font-medium">{{ r.notes }}</dd></div> }
+            </dl>
+
+            @if (r.driverName && r.status !== 'Cancelled') {
+              <p class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-lg bg-slate-50 px-2 py-1.5 text-xs text-slate-600">
+                <span class="flex items-center gap-1"><app-icon name="user" size="h-3.5 w-3.5" /> {{ r.driverName }}</span>
+                @if (r.driverPlate) { <span class="flex items-center gap-1"><app-icon name="car" size="h-3.5 w-3.5" /> {{ r.driverPlate }}</span> }
+                @if (r.driverPhone) { <a [href]="'tel:' + r.driverPhone" class="flex items-center gap-1 font-semibold text-navy-600"><app-icon name="phone" size="h-3.5 w-3.5" /> {{ r.driverPhone }}</a> }
+              </p>
+            }
+          </section>
+
+          <section class="card">
+            <h2 class="text-sm font-semibold">Payment</h2>
+            <div class="mt-2 space-y-1 text-xs text-slate-600">
+              <div class="flex justify-between"><span>Fare</span><span>{{ r.currency }} {{ r.baseAmount | number: '1.0-0' }}</span></div>
+              @if (r.surchargeAmount > 0) {
+                <div class="flex justify-between"><span>Surcharges</span><span>{{ r.currency }} {{ r.surchargeAmount | number: '1.0-0' }}</span></div>
+              }
+              <div class="flex justify-between border-t border-slate-100 pt-1.5 text-sm font-bold text-navy-900">
+                <span>Total</span><span>{{ r.currency }} {{ r.totalAmount | number: '1.0-0' }}</span>
+              </div>
+              <p class="pt-1"><span class="badge" [class]="payClass(r.paymentStatus)">{{ payLabel(r.paymentStatus) }}</span>
+                <span class="ml-1 text-slate-500">{{ r.paymentMethod === 'Card' ? 'Card' : 'Pay the driver' }}</span></p>
+            </div>
+          </section>
+
+          <!-- Cancel -->
+          @if (r.canCancel) {
+            <section class="card">
+              <h2 class="text-sm font-semibold">Cancel this ride</h2>
+              <p class="mt-1 text-xs text-slate-500">
+                Free cancellation until {{ utcLocal(r.freeCancelUntil) | date: 'EEE d MMM, h:mm a' }}
+                ({{ r.freeCancellationHours }} hours before pickup).
+              </p>
+
+              @if (!cancelling()) {
+                <button type="button" class="btn btn-outline btn-sm mt-2 !border-red-300 !text-red-700 hover:!bg-red-50" (click)="cancelling.set(true)">Cancel ride</button>
+              } @else {
+                <form [formGroup]="cancelForm" (submit)="confirmCancel($event)" novalidate class="mt-2 space-y-2">
+                  <div>
+                    <label class="label" for="why">Reason</label>
+                    <select id="why" class="input" formControlName="reason">
+                      <option value="">Select a reason…</option>
+                      @for (c of reasons; track c) { <option [value]="c">{{ c }}</option> }
+                    </select>
+                  </div>
+                  @if (cancelForm.controls.reason.value) {
+                    <div>
+                      <label class="label" for="more">
+                        {{ cancelForm.controls.reason.value === 'Other' ? 'Please tell us why' : 'More details (optional)' }}
+                      </label>
+                      <textarea id="more" rows="2" class="input" maxlength="200" formControlName="details"></textarea>
+                    </div>
+                  }
+                  @if (cancelForm.touched && cancelForm.invalid) {
+                    <p class="text-xs text-red-600">Please choose a reason{{ cancelForm.controls.reason.value === 'Other' ? ' and describe it' : '' }}.</p>
+                  }
+                  <div class="flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm !bg-red-600 hover:!bg-red-700" [disabled]="busy()">
+                      {{ busy() ? 'Cancelling…' : 'Confirm cancellation' }}
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" [disabled]="busy()" (click)="cancelling.set(false)">Keep my ride</button>
+                  </div>
+                </form>
+              }
+            </section>
+          } @else if (r.status === 'Pending' || r.status === 'Confirmed' || r.status === 'Assigned') {
+            <section class="card">
+              <h2 class="text-sm font-semibold">Cancellation</h2>
+              <p class="mt-1 text-xs text-slate-500">
+                Free cancellation ended {{ r.freeCancellationHours }} hours before pickup. Please contact us if you can no longer travel.
+              </p>
+            </section>
+          }
+
+          @if (r.status === 'Cancelled') {
+            <section class="card">
+              <h2 class="text-sm font-semibold">Cancelled</h2>
+              @if (r.cancelReason) { <p class="mt-1 text-xs text-slate-600">Reason: {{ r.cancelReason }}</p> }
+              @if (r.paymentMethod === 'Card' && r.paymentStatus === 'Paid') {
+                <p class="mt-1 rounded-lg bg-saffron-100 px-2 py-1.5 text-xs text-saffron-700">
+                  Your card payment will be refunded by our team. We will contact you about the refund.
+                </p>
+              }
+            </section>
+          }
+
+          <!-- Feedback -->
+          @if (r.status === 'Completed') {
+            <section class="card">
+              <h2 class="text-sm font-semibold">Your feedback</h2>
+              @if (r.feedback; as f) {
+                <p class="mt-1 text-base font-bold text-saffron-700">{{ stars(f.rating) }}</p>
+                @if (f.comment) { <p class="mt-1 text-xs text-slate-600">&ldquo;{{ f.comment }}&rdquo;</p> }
+                <p class="mt-1 text-[11px] text-slate-400">Thank you for rating your ride.</p>
+              } @else {
+                <p class="mt-1 text-xs text-slate-500">How was your ride?</p>
+                <div class="mt-2 flex gap-1" role="radiogroup" aria-label="Rating">
+                  @for (n of [1, 2, 3, 4, 5]; track n) {
+                    <button type="button" class="text-2xl leading-none transition" role="radio" [attr.aria-checked]="rating() === n"
+                            [attr.aria-label]="n + ' star' + (n === 1 ? '' : 's')"
+                            [class]="n <= rating() ? 'text-saffron-600' : 'text-slate-300 hover:text-saffron-400'"
+                            (click)="rating.set(n)">★</button>
+                  }
+                </div>
+                <textarea rows="2" class="input mt-2" maxlength="500" placeholder="Tell us more (optional)"
+                          [value]="comment()" (input)="comment.set($any($event.target).value)"></textarea>
+                <button type="button" class="btn btn-primary btn-sm mt-2" [disabled]="!rating() || busy()" (click)="submitFeedback()">
+                  {{ busy() ? 'Sending…' : 'Send feedback' }}
+                </button>
+              }
+            </section>
+          }
+
+          <section class="card">
+            <h2 class="text-sm font-semibold">Timeline</h2>
+            <ol class="mt-2.5 space-y-2.5 border-l border-slate-200 pl-3">
+              @for (h of r.history; track h.atUtc + h.toStatus) {
+                <li class="relative text-xs">
+                  <span class="absolute -left-[17px] top-1 h-2 w-2 rounded-full bg-navy-500"></span>
+                  <p class="font-semibold">{{ h.fromStatus ? label(h.fromStatus) + ' → ' : '' }}{{ label(h.toStatus) }}</p>
+                  <p class="text-slate-500">{{ utcDate(h.atUtc) | date: 'd MMM y, h:mm a' }} &middot; {{ h.by }}</p>
+                  @if (h.note) { <p class="mt-0.5 text-slate-600">{{ h.note }}</p> }
+                </li>
+              }
+            </ol>
+          </section>
+        </div>
+      } @else if (loading()) {
+        <p class="py-10 text-center text-xs text-slate-500">Loading…</p>
+      }
+    </div>

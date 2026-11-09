@@ -11,7 +11,7 @@ import {
 } from '../../core/status';
 import { Icon } from '../../shared/icon';
 import { AdminApiService } from '../admin-api.service';
-import { AdminBookingDetailResponse, Driver } from '../admin-models';
+import { AdminBookingDetailResponse, Driver, RideFeedbackItem } from '../admin-models';
 
 interface ActionDef {
   status: string;
@@ -37,6 +37,7 @@ export class BookingDetail implements OnInit {
   readonly busy = signal(false);
   readonly error = signal<string | null>(null);
   readonly flash = signal<string | null>(null);
+  readonly feedback = signal<RideFeedbackItem | null>(null);
 
   readonly driverId = signal<number | null>(null);
   readonly pending = signal<string | null>(null);
@@ -77,6 +78,7 @@ export class BookingDetail implements OnInit {
   ngOnInit(): void {
     this.load();
     this.api.drivers().subscribe({ next: (d) => this.drivers.set(d), error: () => undefined });
+        this.api.bookingFeedback(this.id).subscribe({ next: (f) => this.feedback.set(f), error: () => undefined });
   }
 
   load(): void {

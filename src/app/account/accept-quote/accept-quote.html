@@ -1,0 +1,99 @@
+<div class="mx-auto w-full max-w-xl px-4 py-6">
+      <a routerLink="/account/quotes" class="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-navy-600 hover:text-navy-900">
+        <app-icon name="arrow-left" size="h-3.5 w-3.5" /> Back to my quotes
+      </a>
+
+      @if (error()) {
+        <div class="mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
+          <app-icon name="alert" class="mt-0.5" /> <span>{{ error() }}</span>
+        </div>
+      }
+
+      @if (quote(); as q) {
+        @if (!usable()) {
+          <div class="card text-center">
+            <p class="text-sm font-semibold">This quote can no longer be booked.</p>
+            <p class="mt-1 text-xs text-slate-500">It may have expired or been used already.</p>
+            <a routerLink="/quote" class="btn btn-accent btn-sm mt-3">Request a new quote</a>
+          </div>
+        } @else {
+          <form [formGroup]="form" (submit)="submit($event)" novalidate class="card space-y-3">
+            <div>
+              <h1 class="text-base font-bold">Book your quote {{ q.quoteRef }}</h1>
+              <p class="mt-1 text-lg font-bold text-navy-900">{{ q.currency }} {{ q.quotedAmount | number: '1.0-0' }}</p>
+              @if (q.expiresAtUtc) { <p class="text-[11px] text-slate-500">This price is held until your quote expires.</p> }
+            </div>
+
+            <div class="space-y-1 rounded-lg bg-slate-50 p-2.5 text-xs">
+              <p class="flex items-start gap-1.5"><app-icon name="map-pin" size="mt-0.5 h-3.5 w-3.5 text-emerald-600" /> <span>{{ q.pickupAddress }}</span></p>
+              <p class="flex items-start gap-1.5"><app-icon name="map-pin" size="mt-0.5 h-3.5 w-3.5 text-red-500" /> <span>{{ q.dropoffAddress }}</span></p>
+              <p class="text-slate-500">{{ q.passengers }} passenger(s), {{ q.luggage }} bag(s)</p>
+            </div>
+
+            <div>
+              <label class="label" for="aq-when">Pickup date &amp; time</label>
+              <input id="aq-when" type="datetime-local" class="input" formControlName="pickupDateTime" [min]="minNow()"
+                     [class.invalid]="bad('pickupDateTime')" />
+              @if (bad('pickupDateTime')) {
+                <p class="field-error">Choose a time at least {{ minHours }} hours from now</p>
+              }
+            </div>
+
+            @if (q.vehicleTypeId === null) {
+              <div>
+                <label class="label" for="aq-vehicle">Vehicle</label>
+                <select id="aq-vehicle" class="input" formControlName="vehicleTypeId" [class.invalid]="bad('vehicleTypeId')">
+                  <option [ngValue]="null">Select a vehicle…</option>
+                  @for (v of vehicles(); track v.id) { <option [ngValue]="v.id">{{ v.name }}</option> }
+                </select>
+                @if (bad('vehicleTypeId')) { <p class="field-error">Please choose a vehicle</p> }
+              </div>
+            } @else {
+              <p class="text-xs text-slate-600">Vehicle: <b>{{ q.vehicleType }}</b></p>
+            }
+
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label class="label" for="aq-phone">Phone</label>
+                <input id="aq-phone" type="tel" class="input" formControlName="phone" [class.invalid]="bad('phone')" />
+                @if (bad('phone')) { <p class="field-error">Enter a valid phone number</p> }
+              </div>
+              <div>
+                <label class="label" for="aq-flight">Flight number <span class="text-slate-400">(optional)</span></label>
+                <input id="aq-flight" class="input uppercase" formControlName="flightNumber" [class.invalid]="bad('flightNumber')" />
+                @if (bad('flightNumber')) { <p class="field-error">Check the flight number (example: PK301)</p> }
+              </div>
+            </div>
+
+            <div>
+              <label class="label" for="aq-notes">Notes <span class="text-slate-400">(optional)</span></label>
+              <textarea id="aq-notes" rows="2" class="input" maxlength="1000" formControlName="notes"></textarea>
+            </div>
+
+            <fieldset>
+              <legend class="label">How would you like to pay?</legend>
+              <div class="grid gap-2 sm:grid-cols-2">
+                @for (p of paymentChoices; track p.value) {
+                  <label class="flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 transition"
+                         [class]="form.controls.paymentMethod.value === p.value ? 'border-navy-900 bg-navy-50 ring-1 ring-navy-900' : 'border-slate-200 hover:border-navy-300'">
+                    <input type="radio" class="mt-0.5 accent-navy-900" formControlName="paymentMethod" [value]="p.value" />
+                    <span>
+                      <span class="flex items-center gap-1.5 text-sm font-semibold"><app-icon [name]="p.icon" /> {{ p.title }}</span>
+                      <span class="mt-0.5 block text-xs text-slate-500">{{ p.text }}</span>
+                    </span>
+                  </label>
+                }
+              </div>
+            </fieldset>
+
+            <div class="flex justify-end">
+              <button type="submit" class="btn btn-accent" [disabled]="submitting()">
+                {{ submitting() ? 'Confirming…' : 'Confirm booking · ' + q.currency + ' ' + (q.quotedAmount ?? 0) }}
+              </button>
+            </div>
+          </form>
+        }
+      } @else if (loading()) {
+        <p class="py-10 text-center text-xs text-slate-500">Loading…</p>
+      }
+    </div>

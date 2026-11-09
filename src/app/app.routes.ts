@@ -99,6 +99,18 @@ export const routes: Routes = [
         canActivate: [customerGuard],
         loadComponent: () => import('./account/my-quotes/my-quotes').then((m) => m.MyQuotes),
       },
+            {
+        path: 'account/quotes/:id/book',
+        title: 'Book your quote - Raahi',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./account/accept-quote/accept-quote').then((m) => m.AcceptQuote),
+      },
+      {
+        path: 'account/rides/:id',
+        title: 'Ride details - Raahi',
+        canActivate: [customerGuard],
+        loadComponent: () => import('./account/ride-detail/ride-detail').then((m) => m.RideDetail),
+      },
    {
   path: 'account/rides',
   title: 'My rides - Raahi',

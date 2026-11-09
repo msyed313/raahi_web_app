@@ -24,6 +24,59 @@ export interface CustomerProfile {
   createdAtUtc: string;
 }
 
+export interface RideHistoryItem {
+  fromStatus: string | null;
+  toStatus: string;
+  by: string;
+  note: string | null;
+  atUtc: string;
+}
+
+export interface RideFeedback {
+  rating: number;
+  comment: string | null;
+  createdAtUtc: string;
+}
+
+export interface CustomerRideDetail {
+  bookingId: number;
+  bookingRef: string;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  pickupDateTime: string;
+  pickupAddress: string;
+  dropoffAddress: string;
+  passengers: number;
+  luggage: number;
+  flightNumber: string | null;
+  notes: string | null;
+  baseAmount: number;
+  surchargeAmount: number;
+  totalAmount: number;
+  currency: string;
+  vehicleType: string;
+  driverName: string | null;
+  driverPhone: string | null;
+  driverPlate: string | null;
+  routeName: string | null;
+  quoteRef: string | null;
+  cancelReason: string | null;
+  cancelledAtUtc: string | null;
+  createdAtUtc: string;
+  canCancel: boolean;
+  freeCancelUntil: string | null;
+  freeCancellationHours: number;
+  history: RideHistoryItem[];
+  feedback: RideFeedback | null;
+}
+
+export interface CancelResult {
+  status: string;
+  refundPending: boolean;
+}
+
+
 export interface UpdateProfile {
   fullName: string;
   phone: string | null;
@@ -73,6 +126,10 @@ export interface CustomerQuote {
   quotedAtUtc: string | null;
   expiresAtUtc: string | null;
   createdAtUtc: string;
+    vehicleTypeId: number | null;
+  luggage: number;
+  flightNumber: string | null;
+  notes: string | null;
 }
 
 
@@ -101,6 +158,17 @@ export class CustomerAuthService {
   // ---------- public (no token needed) ----------
   providers(): Observable<Providers> {
     return (this.providers$ ??= this.http.get<Providers>(`${BASE}/auth/providers`).pipe(shareReplay(1)));
+  }
+     ride(id: number): Observable<CustomerRideDetail> {
+    return this.http.get<CustomerRideDetail>(`${BASE}/me/rides/${id}`);
+  }
+
+  cancelRide(id: number, reason: string): Observable<CancelResult> {
+    return this.http.post<CancelResult>(`${BASE}/me/rides/${id}/cancel`, { reason });
+  }
+
+  sendFeedback(id: number, rating: number, comment: string | null): Observable<RideFeedback> {
+    return this.http.post<RideFeedback>(`${BASE}/me/rides/${id}/feedback`, { rating, comment });
   }
     quotes(): Observable<CustomerQuote[]> {
     return this.http.get<CustomerQuote[]>(`${BASE}/me/quotes`);

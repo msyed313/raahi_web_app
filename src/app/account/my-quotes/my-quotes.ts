@@ -24,7 +24,10 @@ export class MyQuotes implements OnInit {
   ngOnInit(): void {
     this.load();
   }
-
+   isLive(q: CustomerQuote): boolean {
+    const e = utc(q.expiresAtUtc);
+    return !e || new Date(e).getTime() > Date.now();
+  }
   utcDate(value: string | null): string | null {
     return utc(value);
   }

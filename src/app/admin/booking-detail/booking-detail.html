@@ -153,7 +153,16 @@
               }
             </section>
           }
-
+                     @if (feedback(); as f) {
+            <section class="card">
+              <h2 class="text-sm font-semibold">Customer feedback</h2>
+              <p class="mt-2 text-sm font-bold text-saffron-700" [attr.aria-label]="f.rating + ' out of 5'">
+                {{ '★'.repeat(f.rating) }}<span class="text-slate-300">{{ '★'.repeat(5 - f.rating) }}</span>
+              </p>
+              @if (f.comment) { <p class="mt-1 text-xs text-slate-600">&ldquo;{{ f.comment }}&rdquo;</p> }
+              <p class="mt-1 text-[11px] text-slate-400">{{ utcDate(f.createdAtUtc) | date: 'd MMM y, h:mm a' }}</p>
+            </section>
+          }
           <section class="card">
             <h2 class="text-sm font-semibold">History</h2>
             <ol class="mt-2.5 space-y-2.5 border-l border-slate-200 pl-3">

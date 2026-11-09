@@ -15,6 +15,7 @@ import {
   Paged,
   QuoteActionResult,
   RespondToQuoteRequest,
+  RideFeedbackItem,
   UpdateStatusRequest,
 } from './admin-models';
 
@@ -100,6 +101,10 @@ export class AdminApiService {
     return id === null
       ? this.http.post<CatalogRoute>(`${this.base}/catalog/routes`, body)
       : this.http.put<CatalogRoute>(`${this.base}/catalog/routes/${id}`, body);
+  }
+
+    bookingFeedback(id: number): Observable<RideFeedbackItem | null> {
+    return this.http.get<RideFeedbackItem | null>(`${this.base}/bookings/${id}/feedback`);
   }
 
 }

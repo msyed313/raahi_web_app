@@ -82,6 +82,7 @@ interface RideView extends CustomerRide {
                   <span class="font-semibold">{{ r.currency }} {{ r.totalAmount | number: '1.0-0' }}</span>
                 </span>
               </div>
+                            <a [routerLink]="['/account/rides', r.bookingId]" class="mt-2 inline-block text-xs font-semibold text-navy-600 underline">View details</a>
                 @if (r.paymentMethod === 'Card' && r.status === 'Pending' && r.paymentStatus !== 'Paid') {
                 <div class="mt-2 flex justify-end">
                   <button type="button" class="btn btn-accent btn-sm" (click)="payNow(r)" [disabled]="paying() === r.bookingId">

@@ -230,5 +230,9 @@ export interface CatalogRoute {
   sortOrder: number;
   prices: RoutePriceItem[];
 }
-
+export interface RideFeedbackItem {
+  rating: number;
+  comment: string | null;
+  createdAtUtc: string;
+}
 export type CatalogRouteSave = Omit<CatalogRoute, 'id'>;
