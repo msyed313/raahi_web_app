@@ -64,7 +64,8 @@ export class AdminShell {
     { path: '/admin/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { path: '/admin/bookings', label: 'Bookings', icon: 'clipboard' },
     { path: '/admin/quotes', label: 'Quotes', icon: 'message' },
-        { path: '/admin/vehicles', label: 'Vehicles', icon: 'car' },
+    { path: '/admin/vehicles', label: 'Vehicles', icon: 'car' },
     { path: '/admin/routes', label: 'Routes', icon: 'map-pin' },
+    { path: '/admin/drivers', label: 'Drivers', icon: 'users' },
   ];
 }

@@ -2,6 +2,7 @@ import { Component, DestroyRef, OnInit, inject, input, output, signal } from '@a
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { apiErrorMessage } from '../../core/apis/api-error';
 import { CustomerAuthService, OtpPurpose } from '../../core/auth/customer-auth.service';
+import { DriverAuthService } from '../../core/auth/driver-auth.service';
 import { Icon } from '../../shared/icon';
 @Component({
   imports: [ReactiveFormsModule, Icon],
@@ -10,7 +11,8 @@ import { Icon } from '../../shared/icon';
   templateUrl: './otp-step.html',
 })
 export class OtpStep implements OnInit {
-  private readonly auth = inject(CustomerAuthService);
+  private readonly customerAuth  = inject(CustomerAuthService);
+  private readonly driverAuth = inject(DriverAuthService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly email = input.required<string>();
@@ -20,7 +22,8 @@ export class OtpStep implements OnInit {
   /** Emits the short-lived setup token once the code is correct. */
   readonly verified = output<string>();
   readonly changeEmail = output<void>();
-
+  /** Customers and drivers have separate API endpoints for the code. */
+  readonly audience = input<'customer' | 'driver'>('customer');
   readonly code = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required, Validators.pattern(/^\d{6}$/)],
@@ -32,11 +35,12 @@ export class OtpStep implements OnInit {
   readonly remaining = signal(0);
 
   private timer?: ReturnType<typeof setInterval>;
-
+  private get auth(): CustomerAuthService | DriverAuthService {
+    return this.audience() === 'driver' ? this.driverAuth : this.customerAuth;
+  }
   constructor() {
     this.destroyRef.onDestroy(() => clearInterval(this.timer));
   }
-
   ngOnInit(): void {
     this.startCountdown(this.resendAfter());
   }

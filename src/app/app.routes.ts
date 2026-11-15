@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
    import { customerGuard } from './core/auth/customer.guard';
+import { driverGuard } from './core/auth/driver.guard';
 export const routes: Routes = [
   // ---------- admin ----------
   {
@@ -44,9 +45,37 @@ export const routes: Routes = [
         title: 'Routes & prices - Raahi Admin',
         loadComponent: () => import('./admin/routes/routes').then((m) => m.RoutesAdmin),
       },
+            {
+        path: 'drivers',
+        title: 'Drivers - Raahi Admin',
+        loadComponent: () => import('./admin/drivers').then((m) => m.DriversAdmin),
+      },
+      {
+        path: 'drivers/:id',
+        title: 'Driver - Raahi Admin',
+        loadComponent: () => import('./admin/driver-detail/driver-detail').then((m) => m.DriverDetailAdmin),
+      },
     ],
   },
-
+     // ---------- driver portal ----------
+  {
+    path: 'driver',
+    canActivate: [driverGuard],
+    loadComponent: () => import('../app/driver/driver-shell/driver-shell').then((m) => m.DriverShell),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'jobs' },
+      {
+        path: 'jobs',
+        title: 'My jobs - Raahi Driver',
+        loadComponent: () => import('../app/driver/driver-jobs/driver-jobs').then((m) => m.DriverJobsPage),
+      },
+      {
+        path: 'profile',
+        title: 'My profile - Raahi Driver',
+        loadComponent: () => import('../app/driver/driver-profile/driver-profile').then((m) => m.DriverProfilePage),
+      },
+    ],
+  },
   // ---------- public site ----------
   {
     path: '',
@@ -72,7 +101,22 @@ export const routes: Routes = [
         title: 'Booking confirmation - Raahi',
         loadComponent: () => import('./pages/confirmation/confirmation').then((m) => m.Confirmation),
       },
-         {
+            {
+        path: 'driver/login',
+        title: 'Driver log in - Raahi',
+        loadComponent: () => import('../app/driver/driver-login/driver-login').then((m) => m.DriverLogin),
+      },
+      {
+        path: 'driver/signup',
+        title: 'Drive with Raahi',
+        loadComponent: () => import('../app/driver/driver-signup/driver-signup').then((m) => m.DriverSignup),
+      },
+      {
+        path: 'driver/forgot',
+        title: 'Reset driver password - Raahi',
+        loadComponent: () => import('../app/driver/driver-forgot/driver-forgot').then((m) => m.DriverForgot),
+      },
+   {
      path: 'account/signup',
      title: 'Create account - Raahi',
      loadComponent: () => import('./account/signup/signup').then((m) => m.Signup),
@@ -93,13 +137,13 @@ export const routes: Routes = [
      canActivate: [customerGuard],
      loadComponent: () => import('./account/profile/profile').then((m) => m.Profile),
    },
-         {
+     {
         path: 'account/quotes',
         title: 'My quotes - Raahi',
         canActivate: [customerGuard],
         loadComponent: () => import('./account/my-quotes/my-quotes').then((m) => m.MyQuotes),
       },
-            {
+    {
         path: 'account/quotes/:id/book',
         title: 'Book your quote - Raahi',
         canActivate: [customerGuard],
@@ -111,12 +155,12 @@ export const routes: Routes = [
         canActivate: [customerGuard],
         loadComponent: () => import('./account/ride-detail/ride-detail').then((m) => m.RideDetail),
       },
-   {
-  path: 'account/rides',
-  title: 'My rides - Raahi',
-  canActivate: [customerGuard],
-  loadComponent: () => import('./account/my-rides').then((m) => m.MyRides),
-},
+      {
+         path: 'account/rides',
+         title: 'My rides - Raahi',
+         canActivate: [customerGuard],
+         loadComponent: () => import('./account/my-rides').then((m) => m.MyRides),
+      },
       {
         path: 'pay/sandbox',
         title: 'Test payment - Raahi',

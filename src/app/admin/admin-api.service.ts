@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 import {
   AdminBookingDetailResponse,
   AdminBookingItem,
+  AdminDriverDetail,
+  AdminDriverItem,
   AdminQuoteItem,
   CatalogRoute,
   CatalogRouteSave,
@@ -105,6 +107,35 @@ export class AdminApiService {
 
     bookingFeedback(id: number): Observable<RideFeedbackItem | null> {
     return this.http.get<RideFeedbackItem | null>(`${this.base}/bookings/${id}/feedback`);
+  }
+ 
+    // ---------- driver applications (Admin only) ----------
+  driverList(status?: string): Observable<AdminDriverItem[]> {
+    return this.http.get<AdminDriverItem[]>(`${this.base}/drivers/applications`, { params: toParams({ status }) });
+  }
+
+  driverDetail(id: number): Observable<AdminDriverDetail> {
+    return this.http.get<AdminDriverDetail>(`${this.base}/drivers/${id}`);
+  }
+
+  driverDocUrl(id: number, type: string): string {
+    return `${this.base}/drivers/${id}/docs/${type}`;
+  }
+
+  approveDriver(id: number): Observable<void> {
+    return this.http.post<void>(`${this.base}/drivers/${id}/approve`, {});
+  }
+
+  rejectDriver(id: number, reason: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/drivers/${id}/reject`, { reason });
+  }
+
+  setDriverActive(id: number, active: boolean): Observable<void> {
+    return this.http.post<void>(`${this.base}/drivers/${id}/active`, { active });
+  }
+
+  inviteDriver(id: number, email: string): Observable<void> {
+    return this.http.put<void>(`${this.base}/drivers/${id}/invite`, { email });
   }
 
 }

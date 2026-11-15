@@ -1,3 +1,6 @@
+import { DriverStatus } from "../core/auth/driver-auth.service";
+import { DriverProfile } from "../core/drivermodels";
+
 export interface Paged<T> {
   items: T[];
   totalRows: number;
@@ -236,3 +239,25 @@ export interface RideFeedbackItem {
   createdAtUtc: string;
 }
 export type CatalogRouteSave = Omit<CatalogRoute, 'id'>;
+export interface AdminDriverItem {
+  driverId: number;
+  fullName: string;
+  email: string | null;
+  phone: string;
+  approvalStatus: DriverStatus;
+  isActive: boolean;
+  isOnline: boolean;
+  vehicleType: string | null;
+  plateNumber: string | null;
+  submittedAtUtc: string | null;
+  hasAccount: boolean;
+}
+
+export interface AdminDriverDetail {
+  driverId: number;
+  hasAccount: boolean;
+  submittedAtUtc: string | null;
+  reviewedAtUtc: string | null;
+  reviewedBy: string | null;
+  profile: DriverProfile;
+}

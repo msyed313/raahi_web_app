@@ -1,0 +1,30 @@
+ <div class="flex min-h-screen flex-col bg-slate-50">
+      <header class="sticky top-0 z-20 bg-navy-900">
+        <div class="mx-auto flex h-12 w-full max-w-3xl items-center justify-between px-4">
+          <img src="raahi-logo-dark.svg" alt="Raahi" class="h-6 w-auto" />
+          <div class="flex items-center gap-3">
+            <span class="hidden max-w-40 truncate text-xs font-semibold text-white sm:block">{{ auth.session()?.fullName }}</span>
+            <button type="button" (click)="auth.logout()" class="flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white">
+              <app-icon name="log-out" /> Sign out
+            </button>
+          </div>
+        </div>
+        <nav class="mx-auto flex w-full max-w-3xl gap-1 px-3 pb-2">
+          <a routerLink="/driver/jobs" routerLinkActive="bg-white/15 text-white"
+             class="flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-slate-300">
+            <app-icon name="clipboard" size="h-3.5 w-3.5" /> My jobs
+          </a>
+          <a routerLink="/driver/profile" routerLinkActive="bg-white/15 text-white"
+             class="flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-slate-300">
+            <app-icon name="user" size="h-3.5 w-3.5" /> Profile
+            @if (auth.session()?.approvalStatus !== 'Approved') {
+              <span class="h-2 w-2 rounded-full bg-saffron-500"></span>
+            }
+          </a>
+        </nav>
+      </header>
+
+      <main class="mx-auto w-full max-w-3xl flex-1 px-4 py-4">
+        <router-outlet />
+      </main>
+    </div>

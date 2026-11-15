@@ -1,0 +1,167 @@
+@if (error()) {
+      <div class="mb-3 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700" role="alert">
+        <app-icon name="alert" class="mt-0.5" /> <span>{{ error() }}</span>
+      </div>
+    }
+    @if (flash()) {
+      <div class="mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700" role="status">{{ flash() }}</div>
+    }
+
+    @if (profile(); as p) {
+      <!-- application status -->
+      <section class="card mb-3">
+        @switch (p.approvalStatus) {
+          @case ('Incomplete') {
+            <h1 class="text-sm font-bold">Complete your profile</h1>
+            <p class="mt-1 text-xs text-slate-600">Add your details and upload your documents, then submit your application for review.</p>
+            @if (p.missing.length) {
+              <p class="mt-2 text-xs text-saffron-700">Still needed: {{ p.missing.join(', ') }}.</p>
+            }
+          }
+          @case ('Pending') {
+            <h1 class="text-sm font-bold">Application under review</h1>
+            <p class="mt-1 text-xs text-slate-600">Thank you. Our team is checking your documents and we will email you the result. You cannot change your details while we review them.</p>
+          }
+          @case ('Rejected') {
+            <h1 class="text-sm font-bold text-red-700">Application not approved</h1>
+            @if (p.rejectionReason) { <p class="mt-1 text-xs text-slate-700">Reason: {{ p.rejectionReason }}</p> }
+            <p class="mt-1 text-xs text-slate-600">Please fix the problem below and submit again.</p>
+          }
+          @case ('Approved') {
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h1 class="text-sm font-bold text-emerald-700">You are approved</h1>
+                <p class="mt-1 text-xs text-slate-600">
+                  @if (p.isActive) { Our team can assign rides to you while you are online. } @else { Your account is switched off. Please contact Raahi. }
+                </p>
+                @if (p.averageRating !== null) {
+                  <p class="mt-1 text-xs font-semibold text-saffron-700">★ {{ p.averageRating | number: '1.1-1' }} <span class="font-normal text-slate-500">({{ p.ratingCount }} ratings)</span></p>
+                }
+              </div>
+              @if (p.isActive) {
+                <button type="button" class="btn btn-sm" [class]="p.isOnline ? 'btn-primary' : 'btn-outline'" [disabled]="busy()" (click)="toggleOnline(!p.isOnline)">
+                  {{ p.isOnline ? 'Online' : 'Offline' }}
+                </button>
+              }
+            </div>
+          }
+        }
+      </section>
+
+      <form [formGroup]="form" (submit)="save($event)" novalidate class="space-y-3">
+        <section class="card">
+          <h2 class="text-sm font-semibold">Personal details</h2>
+          <div class="mt-2 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="label" for="dn">Full name</label>
+              <input id="dn" class="input" formControlName="fullName" [class.invalid]="bad('fullName')" />
+            </div>
+            <div>
+              <label class="label" for="dp">Mobile number</label>
+              <input id="dp" type="tel" class="input" formControlName="phone" [class.invalid]="bad('phone')" />
+              @if (bad('phone')) { <p class="field-error">Enter a valid phone number</p> }
+            </div>
+            <div>
+              <label class="label" for="dc">CNIC number</label>
+              <input id="dc" class="input" formControlName="cnicNumber" inputmode="numeric" placeholder="35202-1234567-1" [class.invalid]="bad('cnicNumber')" />
+              @if (bad('cnicNumber')) { <p class="field-error">Enter your 13-digit CNIC</p> }
+            </div>
+            <div>
+              <label class="label" for="de">Email</label>
+              <input id="de" class="input" [value]="p.email" disabled />
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="text-sm font-semibold">Driving licence</h2>
+          <div class="mt-2 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="label" for="dl">Licence number</label>
+              <input id="dl" class="input" formControlName="licenseNumber" [class.invalid]="bad('licenseNumber')" />
+            </div>
+            <div>
+              <label class="label" for="dx">Licence expiry date</label>
+              <input id="dx" type="date" class="input" formControlName="licenseExpiry" [min]="today" [class.invalid]="bad('licenseExpiry')" />
+              @if (bad('licenseExpiry')) { <p class="field-error">Enter a date in the future</p> }
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="text-sm font-semibold">Your vehicle</h2>
+          <div class="mt-2 grid gap-3 sm:grid-cols-2">
+            <div>
+              <label class="label" for="dv">Vehicle type</label>
+              <select id="dv" class="input" formControlName="vehicleTypeId">
+                <option [ngValue]="null">Select…</option>
+                @for (v of vehicleTypes(); track v.id) { <option [ngValue]="v.id">{{ v.name }}</option> }
+              </select>
+            </div>
+            <div>
+              <label class="label" for="dpl">Number plate</label>
+              <input id="dpl" class="input uppercase" formControlName="plateNumber" placeholder="ABC-123" />
+            </div>
+            <div>
+              <label class="label" for="dm">Make and model</label>
+              <input id="dm" class="input" formControlName="vehicleModel" placeholder="Toyota Corolla" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="label" for="dy">Year</label>
+                <input id="dy" type="number" class="input" formControlName="vehicleYear" [class.invalid]="bad('vehicleYear')" />
+              </div>
+              <div>
+                <label class="label" for="dcol">Colour</label>
+                <input id="dcol" class="input" formControlName="vehicleColor" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        @if (p.canEdit || p.approvalStatus === 'Approved') {
+          <div class="flex justify-end">
+            <button type="submit" class="btn btn-outline btn-sm" [disabled]="busy()">{{ busy() ? 'Saving…' : 'Save details' }}</button>
+          </div>
+        }
+      </form>
+
+      <section class="card mt-3">
+        <h2 class="text-sm font-semibold">Documents and photos</h2>
+        <p class="mt-0.5 text-xs text-slate-500">Only Raahi staff can see these. Photos are shrunk automatically.</p>
+        <div class="mt-3 grid gap-3 sm:grid-cols-3">
+          @for (d of docs; track d.type) {
+            <div>
+              <p class="text-xs font-semibold">{{ d.title }}</p>
+              <div class="mt-1 h-28">
+                @if (has(p, d.type)) {
+                  <app-secure-image class="h-full" [url]="api.docUrl(d.type)" [version]="versions()[d.type] ?? 0" [alt]="d.title" />
+                } @else {
+                  <div class="flex h-full items-center justify-center rounded-lg border border-dashed border-slate-300 px-2 text-center text-[11px] text-slate-400">{{ d.hint }}</div>
+                }
+              </div>
+              @if (p.canEdit) {
+                <label class="btn btn-outline btn-sm mt-1.5 w-full cursor-pointer" [class.opacity-60]="uploading() === d.type">
+                  {{ uploading() === d.type ? 'Uploading…' : has(p, d.type) ? 'Replace photo' : 'Add photo' }}
+                  <input type="file" accept="image/*" class="sr-only" [disabled]="uploading() !== null" (change)="upload(d.type, $event)" />
+                </label>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      @if (p.canEdit) {
+        <section class="card mt-3">
+          <h2 class="text-sm font-semibold">Submit for review</h2>
+          <p class="mt-1 text-xs text-slate-500">
+            When everything is filled in, submit your application. Our team will approve it or tell you what to fix.
+          </p>
+          <button type="button" class="btn btn-accent mt-2" [disabled]="busy() || uploading() !== null" (click)="submit()">
+            {{ busy() ? 'Submitting…' : 'Save and submit application' }}
+          </button>
+        </section>
+      }
+    } @else if (loading()) {
+      <p class="py-10 text-center text-xs text-slate-500">Loading…</p>
+    }

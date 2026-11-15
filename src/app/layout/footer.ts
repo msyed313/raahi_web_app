@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
         <nav class="flex items-center gap-4">
           <a routerLink="/book" class="hover:text-navy-900">Book a Ride</a>
           <a routerLink="/quote" class="hover:text-navy-900">Request Quote</a>
+          <a routerLink="/driver/login" class="hover:text-navy-900">Drive with Raahi</a>
         </nav>
         <p>&copy; {{ year }} Raahi. All rights reserved.</p>
       </div>
